@@ -104,9 +104,112 @@ fi
 echo "tmpfs   /tmp/cache      tmpfs   defaults        0       0" >> /etc/fstab
 msg_ok "Installed Frigate $RELEASE"
 
-if grep -q -o -m1 'avx[^ ]*' /proc/cpuinfo; then
-  msg_ok "AVX Support Detected"
-  msg_info "Installing Openvino Object Detection Model (Resilience)"
+source <(curl -s https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/nvidia.func)
+nvidia_installed=$(check_nvidia_drivers_installed)
+if [ $nvidia_installed == 1 ]; then
+  check_nvidia_drivers_version
+  echo -e "Nvidia drivers detected. Version ${NVD_VER}"
+  msg_info "Installing Nvidia Dependencies"
+  os=""
+  if [ $PCT_OSTYPE == "debian" ]; then
+    os="debian$PCT_OSVERSION"
+  elif [ $PCT_OSTYPE == "ubuntu" ]; then
+    os_ver=$(echo "$var_version" | sed 's|\.||g')
+    os="ubuntu$os_ver"
+  fi
+  check_cuda_version
+  TARGET_CUDA_VER=$(echo $NVD_VER_CUDA | sed 's|\.|-|g')
+  $STD apt install -y gnupg
+  $STD apt-key del 7fa2af80
+  wget -q https://developer.download.nvidia.com/compute/cuda/repos/${os}/x86_64/cuda-keyring_1.1-1_all.deb
+  $STD dpkg -i cuda-keyring_1.1-1_all.deb
+  $STD apt install -y software-properties-common
+  $STD apt update
+  $STD add-apt-repository contrib
+  rm cuda-keyring_1.1-1_all.deb
+#  if grep -qR "Acquire::http::Proxy" /etc/apt/apt.conf.d/ && [ -f "/etc/apt/sources.list.d/cuda-${os}-x86_64.list" ]; then
+#    sed -i "s|https://developer|http://HTTPS///developer|g" /etc/apt/sources.list.d/cuda-${os}-x86_64.list
+#  fi
+#  $STD apt update && sleep 1
+  $STD apt update
+  $STD apt install -qqy "cuda-toolkit-$TARGET_CUDA_VER"
+  $STD apt install -qqy "cudnn-cuda-$NVD_MAJOR_CUDA"
+  msg_ok "Installed Nvidia Dependencies"
+
+  msg_info "Installing TensorRT"
+  #pip3 wheel --wheel-dir=/trt-wheels -r /opt/frigate/docker/tensorrt/requirements-amd64.txt
+  #pip3 install -U /trt-wheels/*.whl
+  # Use latest TensorRT version (instead of fixed v8)
+  $STD pip3 install --extra-index-url 'https://pypi.nvidia.com' numpy tensorrt cuda-python cython nvidia-cuda-runtime-cu12 nvidia-cuda-runtime-cu11 nvidia-cublas-cu11 nvidia-cudnn-cu11 onnx protobuf
+  TRT_VER=$(pip freeze | grep tensorrt== | sed "s|tensorrt==||g")
+  TRT_MAJOR=${TRT_VER%%.*}
+  #There can be slight mismatch between the installed drivers' CUDA version and the available download link, so dynamically retrieve the right link using the latest CUDA version mentioned in the TensorRT documentation
+  trt_cuda=$(curl --silent https://docs.nvidia.com/deeplearning/tensorrt/quick-start-guide/index.html#installing-debian | grep "https://developer.nvidia.com/cuda-toolkit-archive" | head -n1)
+  trt_cuda=$(echo "$trt_cuda" | sed 's|.*rect">||' | sed 's|<.*||' | sed 's| update .*||')
+  trt_cuda=${trt_cuda}_1
+  #trt_url="https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/${TRT_VER}/local_repo/nv-tensorrt-local-repo-ubuntu2204-${TRT_VER}-cuda-${NVD_VER_CUDA}_1.0-1_amd64.deb"
+  trt_url="https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/${TRT_VER}/local_repo/nv-tensorrt-local-repo-ubuntu2204-${TRT_VER}-cuda-${trt_cuda}.0-1_amd64.deb"
+  $STD wget -qO nv-tensorrt-local-repo-amd64.deb $trt_url
+  $STD dpkg -i nv-tensorrt-local-repo-amd64.deb
+  #Nvidia only provides DEB package for Ubuntu, but still works with Debian
+  #cp /var/nv-tensorrt-local-repo-ubuntu2204-${TRT_VER}-cuda-${NVD_VER_CUDA}/nv-tensorrt-local-*-keyring.gpg /usr/share/keyrings/
+  cp /var/nv-tensorrt-local-repo-*/nv-tensorrt-local-*-keyring.gpg /usr/share/keyrings/
+  rm nv-tensorrt-local-repo-amd64.deb
+  $STD apt update
+  # Needed on top of the python install for the NvInfer.h header
+  $STD apt install -y tensorrt-dev
+  export PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
+  export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/lib/python3.9/dist-packages/tensorrt_libs${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  echo "PATH=${PATH}"  >> /etc/bash.bashrc
+  echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /etc/bash.bashrc
+  ldconfig
+  # Temporarily get my patched frigate tensorrt.py plugin (with support for TensorRT v10)
+  #curl -s https://raw.githubusercontent.com/remz1337/frigate/dev/frigate/detectors/plugins/tensorrt.py > /opt/frigate/frigate/detectors/plugins/tensorrt.py
+  msg_ok "Installed TensorRT"
+
+  msg_info "Installing TensorRT Object Detection Model (Patience)"
+  cp -a /opt/frigate/docker/tensorrt/detector/rootfs/. /
+  mkdir -p /usr/local/src/tensorrt_demos
+  cd /usr/local/src
+  fix_tensorrt="$(cat << EOF
+#!/bin/bash
+sed -i 's|/usr/local/TensorRT-.*/|/usr/local/lib/python3.9/dist-packages/tensorrt_libs/|g' /usr/local/src/tensorrt_demos/plugins/Makefile
+EOF
+)"
+  echo "${fix_tensorrt}" > /opt/frigate/fix_tensorrt.sh
+  if [ $TRT_MAJOR -gt 8 ]; then
+    echo "sed -i 's|-lnvparsers ||g' /usr/local/src/tensorrt_demos/plugins/Makefile" >> /opt/frigate/fix_tensorrt.sh
+  fi
+  sed -i '18,21 s|.|#&|' /opt/frigate/docker/tensorrt/detector/tensorrt_libyolo.sh
+  sed -i '9 i bash \/opt\/frigate\/fix_tensorrt.sh' /opt/frigate/docker/tensorrt/detector/tensorrt_libyolo.sh
+  #Temporarly get my fork patched for TensorRT v10
+  #sed -i 's|NateMeyer|remz1337|g' /opt/frigate/docker/tensorrt/detector/tensorrt_libyolo.sh
+  $STD apt install -qqy python-is-python3 g++
+  $STD /opt/frigate/docker/tensorrt/detector/tensorrt_libyolo.sh
+  cd /opt/frigate
+  export YOLO_MODELS="yolov4-tiny-288,yolov4-tiny-416,yolov7-tiny-416,yolov7-320"
+  export TRT_VER="$TRT_VER"
+  $STD bash /opt/frigate/docker/tensorrt/detector/rootfs/etc/s6-overlay/s6-rc.d/trt-model-prepare/run
+  cat <<EOF >>/config/config.yml
+ffmpeg:
+  hwaccel_args: preset-nvidia-h264
+  output_args:
+    record: preset-record-generic-audio-aac
+detectors:
+  tensorrt:
+    type: tensorrt
+#    device: 0
+model:
+  path: /config/model_cache/tensorrt/yolov7-tiny-416.trt
+  input_tensor: nchw
+  input_pixel_format: rgb
+  width: 416
+  height: 416
+EOF
+  msg_ok "Installed TensorRT Object Detection Model (Patience)"
+elif grep -q -o -m1 'avx[^ ]*' /proc/cpuinfo; then
+  msg_ok "AVX support detected"
+  msg_info "Installing Openvino Object Detection Model (Patience)"
   $STD pip install -r /opt/frigate/docker/main/requirements-ov.txt
   cd /opt/frigate/models
   export ENABLE_ANALYTICS=NO
@@ -269,3 +372,5 @@ msg_info "Cleaning up"
 $STD apt-get -y autoremove
 $STD apt-get -y autoclean
 msg_ok "Cleaned"
+
+echo -e "Don't forget to edit the Frigate config file (${GN}/config/config.yml${CL}) and reboot. Example configuration at https://docs.frigate.video/configuration/"
