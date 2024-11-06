@@ -1,0 +1,39 @@
+{
+    "name": "Authentik",
+    "slug": "authentik",
+    "categories": [
+        11
+    ],
+    "date_created": "2024-11-06",
+    "type": "ct",
+    "updateable": false,
+    "privileged": false,
+    "interface_port": "XXX",
+    "documentation": null,
+    "website": "https://goauthentik.io/",
+    "logo": "https://github.com/goauthentik/authentik/blob/main/website/static/img/icon.png",
+    "description": "Authentik is an IdP (Identity Provider) and SSO (single sign on) that is built with security at the forefront of every piece of code, every feature, with an emphasis on flexibility and versatility.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/authentik.sh",
+            "resources": {
+                "cpu": "4",
+                "ram": "4096",
+                "hdd": "20",
+                "os": "debian",
+                "version": "12"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": null
+    },
+    "notes": [
+        {
+            "text": "go2rtc Interface port:`1984`",
+            "type": "warning"
+        }
+    ]
+}
