@@ -11,7 +11,7 @@ export default function StarOnGithubButton() {
   useEffect(() => {
     const fetchStars = async () => {
       try {
-        const res = await fetch("https://api.github.com/repos/community-scripts/ProxmoxVE", {
+        const res = await fetch("https://api.github.com/repos/remz1337/ProxmoxVE", {
           next: { revalidate: 60 * 60 * 24 },
         });
 
@@ -34,7 +34,7 @@ export default function StarOnGithubButton() {
         "group relative justify-center gap-2 rounded-md transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2",
       )}
       target="_blank"
-      href="https://github.com/community-scripts/ProxmoxVE"
+      href="https://github.com/remz1337/ProxmoxVE"
     >
       <span className="absolute right-0 -mt-12 h-32 translate-x-12 rotate-12 bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-40" />
       <div className="flex items-center">

@@ -2,7 +2,7 @@
 
 # Author: remz1337
 # License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 
 # This function sets up the Container OS by generating the locale, setting the timezone, and checking the network connection
 default_setup() {

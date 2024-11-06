@@ -3,7 +3,7 @@ source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/
 # Copyright (c) 2021-2024 community-scripts ORG
 # Author: MickLesk (Canbiz)
 # License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 # Source: https://vikunja.io/
 
 function header_info {

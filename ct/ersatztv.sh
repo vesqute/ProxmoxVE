@@ -4,7 +4,7 @@ source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/
 # Author: tteck
 # Co-Author: MickLesk (Canbiz)
 # License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 # Source: https://github.com/ErsatzTV/ErsatzTV/
 
 

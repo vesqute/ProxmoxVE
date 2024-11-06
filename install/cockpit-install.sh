@@ -4,7 +4,7 @@
 # Author: tteck
 # Co-Author: havardthom
 # License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 # Source: https://github.com/cockpit-project/cockpit
 
 source /dev/stdin <<< "$FUNCTIONS_FILE_PATH"

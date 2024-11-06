@@ -3,9 +3,9 @@
 # Copyright (c) 2021-2024 tteck
 # Author: tteck (tteckster)
 # License: MIT
-# https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 # Execute within the Proxmox shell
-# bash -c "$(wget -qLO - https://github.com/community-scripts/ProxmoxVE/raw/main/misc/hw-acceleration.sh)"
+# bash -c "$(wget -qLO - https://github.com/remz1337/ProxmoxVE/raw/remz/misc/hw-acceleration.sh)"
 
 set -e
 function header_info {

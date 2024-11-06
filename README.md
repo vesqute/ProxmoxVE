@@ -18,10 +18,10 @@
 <p align="center">
   <a href="https://helper-scripts.com">Website</a> | 
   <a href="https://ko-fi.com/proxmoxhelperscripts">Ko-Fi (for tteck🙏)</a> |
-  <a href="https://github.com/community-scripts/ProxmoxVE/blob/main/.github/CONTRIBUTING.md">Contribute</a> |
-  <a href="https://github.com/community-scripts/ProxmoxVE/blob/main/USER_SUBMITTED_GUIDES.md">Guides</a> |
+  <a href="https://github.com/remz1337/ProxmoxVE/blob/remz/.github/CONTRIBUTING.md">Contribute</a> |
+  <a href="https://github.com/remz1337/ProxmoxVE/blob/remz/USER_SUBMITTED_GUIDES.md">Guides</a> |
   <a href="https://discord.gg/UHrpNWGwkH">Discord</a> |
-  <a href="https://github.com/community-scripts/ProxmoxVE/blob/main/CHANGELOG.md">Changelog</a>
+  <a href="https://github.com/remz1337/ProxmoxVE/blob/remz/CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -33,7 +33,7 @@ All configuration choices are displayed in a dialog box, where users can select 
 <hr>
 
 <p align="center">
-Please exercise caution and thoroughly review scripts and automation tasks from external sources. <a href="https://github.com/community-scripts/ProxmoxVE/blob/main/CODE-AUDIT.md">Read more</a>
+Please exercise caution and thoroughly review scripts and automation tasks from external sources. <a href="https://github.com/remz1337/ProxmoxVE/blob/remz/CODE-AUDIT.md">Read more</a>
 </p>
 
 ---
