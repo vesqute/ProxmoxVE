@@ -8,7 +8,7 @@
     "type": "ct",
     "updateable": false,
     "privileged": false,
-    "interface_port": "XXX",
+    "interface_port": "9000",
     "documentation": null,
     "website": "https://goauthentik.io/",
     "logo": "https://github.com/goauthentik/authentik/blob/main/website/static/img/icon.png",
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/authentik.sh",
             "resources": {
-                "cpu": "4",
-                "ram": "4096",
-                "hdd": "20",
+                "cpu": "6",
+                "ram": "8192",
+                "hdd": "12",
                 "os": "debian",
                 "version": "12"
             }
@@ -32,7 +32,7 @@
     },
     "notes": [
         {
-            "text": "go2rtc Interface port:`1984`",
+            "text": "Initial configuration at http://<IP>:9000/if/flow/initial-setup/",
             "type": "warning"
         }
     ]

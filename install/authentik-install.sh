@@ -28,20 +28,20 @@ msg_ok "Installed Dependencies"
 
 msg_info "Installing yq"
 YQ_LATEST="$(wget -qO- "https://api.github.com/repos/mikefarah/yq/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')"
-wget "https://github.com/mikefarah/yq/releases/download/${YQ_LATEST}/yq_linux_amd64" -qO /usr/bin/yq
+$STD wget "https://github.com/mikefarah/yq/releases/download/${YQ_LATEST}/yq_linux_amd64" -qO /usr/bin/yq
 chmod +x /usr/bin/yq
 msg_ok "Installed yq"
 
 msg_info "Installing Python 3.12"
-wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
+$STD wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
 cd Python-3.12.1
 #./configure --enable-optimizations --prefix="$DOTLOCAL"
-./configure --enable-optimizations
-make altinstall
+$STD ./configure --enable-optimizations
+$STD make altinstall
 cd -
 rm -rf Python-3.12.1
 #ln -s "${BIN_DIR}/python3.12" "${BIN_DIR}/python3"
-update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1
+$STD update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1
 msg_ok "Installed Python 3.12"
 
 
@@ -99,15 +99,15 @@ msg_ok "Installed Node.js ${NODE_VER}"
 msg_info "Building ${APP} website"
 RELEASE=$(curl -s https://api.github.com/repos/goauthentik/authentik/releases/latest | grep "tarball_url" | awk '{print substr($2, 2, length($2)-3)}')
 mkdir -p /opt/authentik
-wget -qO authentik.tar.gz "${RELEASE}"
-tar -xzf authentik.tar.gz -C /opt/authentik --strip-components 1 --overwrite
+$STD wget -qO authentik.tar.gz "${RELEASE}"
+$STD tar -xzf authentik.tar.gz -C /opt/authentik --strip-components 1 --overwrite
 rm -rf authentik.tar.gz
 cd /opt/authentik/website
-npm install
-npm run build-bundled
+$STD npm install
+$STD npm run build-bundled
 cd /opt/authentik/web
-npm install
-npm run build
+$STD npm install
+$STD npm run build
 msg_ok "Built ${APP} website"
 
 
@@ -153,17 +153,17 @@ msg_info "Installing Golang"
 cd ~
 set +o pipefail
 GO_RELEASE=$(curl -s https://go.dev/dl/ | grep -o -m 1 "go.*\linux-amd64.tar.gz")
-wget -q https://golang.org/dl/${GO_RELEASE}
-tar -xzf ${GO_RELEASE} -C /usr/local
+$STD wget -q https://golang.org/dl/${GO_RELEASE}
+$STD tar -xzf ${GO_RELEASE} -C /usr/local
 $STD ln -s /usr/local/go/bin/go /usr/bin/go
 set -o pipefail
 msg_ok "Installed Golang"
 
 msg_info "Building Go Proxy"
 cd /opt/authentik
-go mod download
-go build -o /go/authentik ./cmd/server
-go build -o /opt/authentik/authentik-server /opt/authentik/cmd/server/
+$STD go mod download
+$STD go build -o /go/authentik ./cmd/server
+$STD go build -o /opt/authentik/authentik-server /opt/authentik/cmd/server/
 msg_ok "Built Go Proxy"
 
 
@@ -184,8 +184,8 @@ msg_ok "Built Go Proxy"
 msg_info "Installing GeoIP"
 cd ~
 GEOIP_RELEASE=$(curl -s https://api.github.com/repos/maxmind/geoipupdate/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
-wget -qO geoipupdate.deb https://github.com/maxmind/geoipupdate/releases/download/v${GEOIP_RELEASE}/geoipupdate_${GEOIP_RELEASE}_linux_amd64.deb
-dpkg -i geoipupdate.deb
+$STD wget -qO geoipupdate.deb https://github.com/maxmind/geoipupdate/releases/download/v${GEOIP_RELEASE}/geoipupdate_${GEOIP_RELEASE}_linux_amd64.deb
+$STD dpkg -i geoipupdate.deb
 rm geoipupdate.deb
 cat <<EOF >/etc/GeoIP.conf
 #GEOIPUPDATE_EDITION_IDS="GeoLite2-City GeoLite2-ASN"
@@ -234,15 +234,15 @@ $STD apt install -y git
 $STD pip3 install --upgrade pip
 $STD pip3 install poetry poetry-plugin-export
 $STD ln -s /usr/local/bin/poetry /usr/bin/poetry
-poetry install --only=main --no-ansi --no-interaction --no-root
+$STD poetry install --only=main --no-ansi --no-interaction --no-root
 #pip3 install --force-reinstall *.whl
 
 #poetry export -f requirements.txt --output requirements.txt
-poetry export --without-hashes --without-urls -f requirements.txt --output requirements.txt
+$STD poetry export --without-hashes --without-urls -f requirements.txt --output requirements.txt
 #sed -i '\|django-tenants@git+https://github.com/rissson/django-tenants.git@a7f37c53f62f355a00142473ff1e3451bb794eca|d' requirements.txt
 
-poetry export -f requirements.txt --dev --output requirements-dev.txt
-pip install --no-cache-dir -r requirements.txt
+$STD poetry export -f requirements.txt --dev --output requirements-dev.txt
+$STD pip install --no-cache-dir -r requirements.txt
 
 #poetry export --without-hashes --without-urls -f requirements.txt --with dev --output requirements-dev.txt
 #pip install --no-cache-dir -r requirements-dev.txt
@@ -346,17 +346,17 @@ msg_info "Installing ${APP}"
 #cp /opt/authentik/authentik/lib/default.yml /opt/authentik/.local.env.yml
 cp /opt/authentik/authentik/lib/default.yml /opt/authentik/authentik/lib/default.yml.BAK
 mv /opt/authentik/authentik/lib/default.yml /etc/authentik/config.yml
-yq -i ".secret_key = \"$(openssl rand -hex 32)\"" /etc/authentik/config.yml
-yq -i ".postgresql.password = \"${DB_PASS}\"" /etc/authentik/config.yml
+$STD yq -i ".secret_key = \"$(openssl rand -hex 32)\"" /etc/authentik/config.yml
+$STD yq -i ".postgresql.password = \"${DB_PASS}\"" /etc/authentik/config.yml
 #yq -i ".geoip = \"/var/lib/GeoIP/GeoLite2-City.mmdb\"" /etc/authentik/config.yml
-yq -i ".geoip = \"/opt/authentik/tests/GeoLite2-City-Test.mmdb\"" /etc/authentik/config.yml
+$STD yq -i ".geoip = \"/opt/authentik/tests/GeoLite2-City-Test.mmdb\"" /etc/authentik/config.yml
 
 ########### Could just point directly to blueprints in the source folder.....
 #mkdir -p /opt/authentik/blueprints
 #cp -r /opt/authentik/authentik/blueprints /opt/authentik/blueprints
-yq -i ".blueprints_dir = \"/opt/authentik/authentik/blueprints\"" /etc/authentik/config.yml
+$STD yq -i ".blueprints_dir = \"/opt/authentik/authentik/blueprints\"" /etc/authentik/config.yml
 
-apt install -y python-is-python3
+$STD apt install -y python-is-python3
 
 $STD ln -s /usr/local/bin/gunicorn /usr/bin/gunicorn
 $STD ln -s /usr/local/bin/celery /usr/bin/celery
