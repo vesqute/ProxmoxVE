@@ -18,7 +18,7 @@ EOF
 }
 header_info
 echo -e "Loading..."
-APP="Frigate"
+APP="Authentik"
 var_disk="12"
 var_cpu="6"
 var_ram="8192"
