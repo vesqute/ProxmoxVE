@@ -96,7 +96,7 @@ $STD apt-get update
 $STD apt-get install -y nodejs
 msg_ok "Installed Node.js ${NODE_VER}"
 
-msg_info "Building ${APP} website"
+msg_info "Building Authentik website"
 RELEASE=$(curl -s https://api.github.com/repos/goauthentik/authentik/releases/latest | grep "tarball_url" | awk '{print substr($2, 2, length($2)-3)}')
 mkdir -p /opt/authentik
 $STD wget -qO authentik.tar.gz "${RELEASE}"
@@ -108,7 +108,7 @@ $STD npm run build-bundled
 cd /opt/authentik/web
 $STD npm install
 $STD npm run build
-msg_ok "Built ${APP} website"
+msg_ok "Built Authentik website"
 
 
 # # Stage 3: Build go proxy
@@ -330,7 +330,7 @@ $STD sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;"
 msg_ok "Installed PostgreSQL"
 
 
-msg_info "Installing ${APP}"
+msg_info "Installing Authentik"
 # apt-get update
 # apt-get install -y --no-install-recommends libpq5 libmaxminddb0 ca-certificates libkrb5-3 libkadm5clnt-mit12 libkdb5-10
 # apt-get install -y --no-install-recommends runit
@@ -365,7 +365,7 @@ cd opt/authentik
 $STD bash /opt/authentik/lifecycle/ak migrate
 #bash /opt/authentik/lifecycle/ak
 #bash /opt/authentik/authentik-server
-msg_ok "Installed ${APP}"
+msg_ok "Installed Authentik"
 
 
 msg_info "Configuring Services"
