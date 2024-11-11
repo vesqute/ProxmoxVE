@@ -30,8 +30,9 @@ Signed-By: /usr/share/keyrings/collaboraonline-release-keyring.gpg
 EOF
 $STD apt update 
 $STD apt install -y coolwsd code-brand collaboraoffice*
-sed -i 's|<enable type="bool" desc="Controls whether SSL encryption between coolwsd and the network is enabled (do not disable for production deployment). If default is false, must first be compiled with SSL support to enable." default="true">true</enable>|<enable type="bool" desc="Controls whether SSL encryption between coolwsd and the network is enabled (do not disable for production deployment). If default is false, must first be compiled with SSL support to enable." default="true">false</enable>|g' /etc/coolwsd/coolwsd.xml
-sed -i 's|<termination desc="Connection via proxy where coolwsd acts as working via https, but actually uses http." type="bool" default="true">false</termination>|<termination desc="Connection via proxy where coolwsd acts as working via https, but actually uses http." type="bool" default="true">true</termination>|g' /etc/coolwsd/coolwsd.xml
+#Preconfiguring Collabora assuming it will run behind a reverse proxy
+coolconfig set ssl.enable false
+coolconfig set ssl.termination true
 systemctl restart coolwsd
 msg_ok "Installed Collabora Online"
 
