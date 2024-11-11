@@ -24,15 +24,15 @@ $STD apt-get install -y {curl,sudo,mc}
 $STD apt-get install -y gpg pkg-config libffi-dev
 $STD apt-get install -y --no-install-recommends build-essential libpq-dev libkrb5-dev
 $STD apt-get install -y libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev pkg-config libffi-dev zlib1g-dev libxmlsec1 libxmlsec1-dev libxmlsec1-openssl libmaxminddb0
-
 msg_ok "Installed Dependencies"
 
+msg_info "Installing yq"
+YQ_LATEST="$(wget -qO- "https://api.github.com/repos/mikefarah/yq/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')"
+wget "https://github.com/mikefarah/yq/releases/download/${YQ_LATEST}/yq_linux_amd64" -qO /usr/bin/yq
+chmod +x /usr/bin/yq
+msg_ok "Installed yq"
+
 msg_info "Installing Python 3.12"
-# apt-get install -y software-properties-common
-# apt-get install -y python3-launchpadlib
-# add-apt-repository -y ppa:deadsnakes/ppa
-# apt-get update
-# apt-get install python3.12
 wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
 cd Python-3.12.1
 #./configure --enable-optimizations --prefix="$DOTLOCAL"
@@ -43,10 +43,6 @@ rm -rf Python-3.12.1
 #ln -s "${BIN_DIR}/python3.12" "${BIN_DIR}/python3"
 update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1
 msg_ok "Installed Python 3.12"
-
-
-######################### NEEDS POSTGRES + REDIS!!!!!!
-
 
 
 # # Stage 1: Build website
@@ -115,12 +111,6 @@ npm run build
 msg_ok "Built ${APP} website"
 
 
-################PUT This in service file
-NODE_ENV=production
-######################
-
-
-
 # # Stage 3: Build go proxy
 # FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/oss/go/microsoft/golang:1.23-fips-bookworm AS go-builder
 
@@ -177,8 +167,6 @@ go build -o /opt/authentik/authentik-server /opt/authentik/cmd/server/
 msg_ok "Built Go Proxy"
 
 
-
-
 # # Stage 4: MaxMind GeoIP
 # FROM --platform=${BUILDPLATFORM} ghcr.io/maxmind/geoipupdate:v7.0.1 AS geoip
 
@@ -193,28 +181,19 @@ msg_ok "Built Go Proxy"
     # mkdir -p /usr/share/GeoIP && \
     # /bin/sh -c "/usr/bin/entry.sh || echo 'Failed to get GeoIP database, disabling'; exit 0"
 
-
 msg_info "Installing GeoIP"
 cd ~
 GEOIP_RELEASE=$(curl -s https://api.github.com/repos/maxmind/geoipupdate/releases/latest | grep "tag_name" | awk '{print substr($2, 3, length($2)-4) }')
-#mkdir -p /opt/authentik
-#https://github.com/maxmind/geoipupdate/releases/download/v7.0.1/geoipupdate_7.0.1_linux_amd64.deb
 wget -qO geoipupdate.deb https://github.com/maxmind/geoipupdate/releases/download/v${GEOIP_RELEASE}/geoipupdate_${GEOIP_RELEASE}_linux_amd64.deb
 dpkg -i geoipupdate.deb
 rm geoipupdate.deb
-#CONFIG IN /etc/GeoIP.conf
-#---------> Maybe that's where to put the ENV VAR
+cat <<EOF >/etc/GeoIP.conf
+#GEOIPUPDATE_EDITION_IDS="GeoLite2-City GeoLite2-ASN"
+#GEOIPUPDATE_VERBOSE="1"
+#GEOIPUPDATE_ACCOUNT_ID_FILE="/run/secrets/GEOIPUPDATE_ACCOUNT_ID"
+#GEOIPUPDATE_LICENSE_KEY_FILE="/run/secrets/GEOIPUPDATE_LICENSE_KEY"
+EOF
 msg_ok "Installed GeoIP"
-
-############ ADD THIS TO ENV VAR IN service
-# ENV GEOIPUPDATE_EDITION_IDS="GeoLite2-City GeoLite2-ASN"
-# ENV GEOIPUPDATE_VERBOSE="1"
-# ENV GEOIPUPDATE_ACCOUNT_ID_FILE="/run/secrets/GEOIPUPDATE_ACCOUNT_ID"
-# ENV GEOIPUPDATE_LICENSE_KEY_FILE="/run/secrets/GEOIPUPDATE_LICENSE_KEY"
-
-
-
-
 
 
 # # Stage 5: Python dependencies
@@ -252,8 +231,8 @@ cd /opt/authentik
 #$STD apt-get install -y --no-install-recommends build-essential pkg-config libpq-dev libkrb5-dev
 $STD apt install -y python3-pip
 $STD apt install -y git
-pip3 install --upgrade pip
-pip3 install poetry poetry-plugin-export
+$STD pip3 install --upgrade pip
+$STD pip3 install poetry poetry-plugin-export
 $STD ln -s /usr/local/bin/poetry /usr/bin/poetry
 poetry install --only=main --no-ansi --no-interaction --no-root
 #pip3 install --force-reinstall *.whl
@@ -262,24 +241,14 @@ poetry install --only=main --no-ansi --no-interaction --no-root
 poetry export --without-hashes --without-urls -f requirements.txt --output requirements.txt
 #sed -i '\|django-tenants@git+https://github.com/rissson/django-tenants.git@a7f37c53f62f355a00142473ff1e3451bb794eca|d' requirements.txt
 
-
+poetry export -f requirements.txt --dev --output requirements-dev.txt
 pip install --no-cache-dir -r requirements.txt
+
+#poetry export --without-hashes --without-urls -f requirements.txt --with dev --output requirements-dev.txt
+#pip install --no-cache-dir -r requirements-dev.txt
+
 #pip install .
 msg_ok "Installed Python Dependencies"
-
-# curl https://bootstrap.pypa.io/get-pip.py | ./.venv/bin/python3
-# ./.venv/bin/pip install --no-cache-dir poetry poetry-plugin-export
-# ./.venv/bin/poetry export -f requirements.txt --output requirements.txt
-# ./.venv/bin/poetry export -f requirements.txt --with dev --output requirements-dev.txt
-# ./.venv/bin/pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
-
-
-
-
-
-
-
-
 
 
 # # Stage 6: Run
@@ -343,6 +312,22 @@ msg_ok "Installed Python Dependencies"
 
 # ENTRYPOINT [ "dumb-init", "--", "ak" ]
 
+msg_info "Installing Redis"
+$STD apt install -y redis-server
+systemctl enable -q --now redis-server
+msg_ok "Installed Redis"
+
+msg_info "Installing PostgreSQL"
+$STD apt install -y postgresql postgresql-contrib
+DB_NAME="authentik"
+DB_USER="authentik"
+DB_PASS="$(openssl rand -base64 18 | cut -c1-13)"
+$STD sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
+$STD sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';"
+$STD sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 
+$STD sudo -u postgres psql -c "ALTER DATABASE $DB_NAME OWNER TO $DB_USER;"
+$STD sudo -u postgres psql -c "ALTER USER $DB_USER WITH SUPERUSER;"
+msg_ok "Installed PostgreSQL"
 
 
 msg_info "Installing ${APP}"
@@ -357,22 +342,64 @@ msg_info "Installing ${APP}"
 # mkdir -p /ak-root
 # chown authentik:authentik /certs /media /authentik/.ssh /ak-root
 
-apt install -y redis-server
-systemctl enable -q --now redis-server
-
-#apt install -y yq
-YQ_LATEST="$(wget -qO- "https://api.github.com/repos/mikefarah/yq/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')"
-wget "https://github.com/mikefarah/yq/releases/download/${YQ_LATEST}/yq_linux_amd64" -qO /usr/bin/yq
-chmod +x /usr/bin/yq
-
 
 #cp /opt/authentik/authentik/lib/default.yml /opt/authentik/.local.env.yml
-yq -i ".secret_key = \"$(openssl rand -hex 32)\"" /opt/authentik/authentik/lib/default.yml
+cp /opt/authentik/authentik/lib/default.yml /opt/authentik/authentik/lib/default.yml.BAK
+mv /opt/authentik/authentik/lib/default.yml /etc/authentik/config.yml
+yq -i ".secret_key = \"$(openssl rand -hex 32)\"" /etc/authentik/config.yml
+yq -i ".postgresql.password = \"${DB_PASS}\"" /etc/authentik/config.yml
+#yq -i ".geoip = \"/var/lib/GeoIP/GeoLite2-City.mmdb\"" /etc/authentik/config.yml
+yq -i ".geoip = \"/opt/authentik/tests/GeoLite2-City-Test.mmdb\"" /etc/authentik/config.yml
+
+########### Could just point directly to blueprints in the source folder.....
+#mkdir -p /opt/authentik/blueprints
+#cp -r /opt/authentik/authentik/blueprints /opt/authentik/blueprints
+yq -i ".blueprints_dir = \"/opt/authentik/authentik/blueprints\"" /etc/authentik/config.yml
 
 apt install -y python-is-python3
+
+$STD ln -s /usr/local/bin/gunicorn /usr/bin/gunicorn
+$STD ln -s /usr/local/bin/celery /usr/bin/celery
+
+cd opt/authentik
+$STD bash /opt/authentik/lifecycle/ak migrate
 #bash /opt/authentik/lifecycle/ak
 #bash /opt/authentik/authentik-server
 msg_ok "Installed ${APP}"
+
+
+msg_info "Configuring Services"
+cat <<EOF >/etc/systemd/system/authentik-server.service
+[Unit]
+Description = Authentik Server
+[Service]
+ExecStart=/opt/authentik/authentik-server
+WorkingDirectory=/opt/authentik/
+#User=authentik
+#Group=authentik
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable -q --now authentik-server
+sleep 2
+cat <<EOF >/etc/systemd/system/authentik-worker.service
+[Unit]
+Description = Authentik Worker
+[Service]
+Environment=DJANGO_SETTINGS_MODULE="authentik.root.settings"
+ExecStart=celery -A authentik.root.celery worker -Ofair --max-tasks-per-child=1 --autoscale 3,1 -E -B -s /tmp/celerybeat-schedule -Q authentik,authentik_scheduled,authentik_events
+WorkingDirectory=/opt/authentik/authentik
+#User=authentik
+#Group=authentik
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable -q --now authentik-worker
+msg_ok "Configured Services"
 
 motd_ssh
 customize
