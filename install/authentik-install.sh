@@ -33,13 +33,16 @@ chmod +x /usr/bin/yq
 msg_ok "Installed yq"
 
 msg_info "Installing Python 3.12"
-wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
+#wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
+wget -q https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz -O Python.tgz
+tar -zxf Python.tgz
 cd Python-3.12.1
 #./configure --enable-optimizations --prefix="$DOTLOCAL"
 $STD ./configure --enable-optimizations
 $STD make altinstall
 cd -
 rm -rf Python-3.12.1
+rm -rf Python.tgz
 #ln -s "${BIN_DIR}/python3.12" "${BIN_DIR}/python3"
 $STD update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1
 msg_ok "Installed Python 3.12"
@@ -156,6 +159,8 @@ GO_RELEASE=$(curl -s https://go.dev/dl/ | grep -o -m 1 "go.*\linux-amd64.tar.gz"
 $STD wget -q https://golang.org/dl/${GO_RELEASE}
 tar -xzf ${GO_RELEASE} -C /usr/local
 $STD ln -s /usr/local/go/bin/go /usr/bin/go
+rm -rf go/
+rm -rf ${GO_RELEASE}
 set -o pipefail
 msg_ok "Installed Golang"
 
@@ -237,17 +242,13 @@ $STD ln -s /usr/local/bin/poetry /usr/bin/poetry
 $STD poetry install --only=main --no-ansi --no-interaction --no-root
 #pip3 install --force-reinstall *.whl
 
-#poetry export -f requirements.txt --output requirements.txt
 $STD poetry export --without-hashes --without-urls -f requirements.txt --output requirements.txt
-#sed -i '\|django-tenants@git+https://github.com/rissson/django-tenants.git@a7f37c53f62f355a00142473ff1e3451bb794eca|d' requirements.txt
-
-$STD poetry export -f requirements.txt --dev --output requirements-dev.txt
 $STD pip install --no-cache-dir -r requirements.txt
 
 #poetry export --without-hashes --without-urls -f requirements.txt --with dev --output requirements-dev.txt
 #pip install --no-cache-dir -r requirements-dev.txt
 
-#pip install .
+pip install .
 msg_ok "Installed Python Dependencies"
 
 
