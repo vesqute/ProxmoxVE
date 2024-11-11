@@ -40,9 +40,9 @@ cd Python-3.12.1
 #./configure --enable-optimizations --prefix="$DOTLOCAL"
 $STD ./configure --enable-optimizations
 $STD make altinstall
-cd -
-rm -rf Python-3.12.1
-rm -rf Python.tgz
+$STD cd -
+$STD rm -rf Python-3.12.1
+$STD rm -rf Python.tgz
 #ln -s "${BIN_DIR}/python3.12" "${BIN_DIR}/python3"
 $STD update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.12 1
 msg_ok "Installed Python 3.12"
@@ -248,7 +248,7 @@ $STD pip install --no-cache-dir -r requirements.txt
 #poetry export --without-hashes --without-urls -f requirements.txt --with dev --output requirements-dev.txt
 #pip install --no-cache-dir -r requirements-dev.txt
 
-pip install .
+$STD pip install .
 msg_ok "Installed Python Dependencies"
 
 
@@ -400,6 +400,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 systemctl enable -q --now authentik-worker
+sleep 5
 msg_ok "Configured Services"
 
 motd_ssh
