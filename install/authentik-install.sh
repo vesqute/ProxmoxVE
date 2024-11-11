@@ -342,7 +342,7 @@ msg_info "Installing Authentik"
 # mkdir -p /ak-root
 # chown authentik:authentik /certs /media /authentik/.ssh /ak-root
 
-
+mkdir -p /etc/authentik
 #cp /opt/authentik/authentik/lib/default.yml /opt/authentik/.local.env.yml
 cp /opt/authentik/authentik/lib/default.yml /opt/authentik/authentik/lib/default.yml.BAK
 mv /opt/authentik/authentik/lib/default.yml /etc/authentik/config.yml
@@ -361,7 +361,7 @@ $STD apt install -y python-is-python3
 $STD ln -s /usr/local/bin/gunicorn /usr/bin/gunicorn
 $STD ln -s /usr/local/bin/celery /usr/bin/celery
 
-cd opt/authentik
+cd /opt/authentik
 $STD bash /opt/authentik/lifecycle/ak migrate
 #bash /opt/authentik/lifecycle/ak
 #bash /opt/authentik/authentik-server
