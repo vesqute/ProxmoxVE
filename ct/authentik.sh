@@ -47,10 +47,10 @@ function default_settings() {
   NS=""
   MAC=""
   FW=1
-  NVIDIA_PASSTHROUGH="yes"
+  NVIDIA_PASSTHROUGH="no"
   VLAN=""
   SSH="no"
-  VERB="yes"
+  VERB="no"
   echo_default
 }
 
