@@ -13,8 +13,8 @@ default_setup() {
   #pct exec $CTID -- /bin/bash -c "apt install -qqy curl &>/dev/null"
   #pct exec $CTID -- /bin/bash -c "apt install -y curl"
   #echo "Successfully installed curl!"
-  #lxc-attach -n "$CTID" -- bash -c "source <(curl -s https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/install.func) && color && verb_ip6 && catch_errors && setting_up_container && network_check && update_os" || exit
-  pct exec "$CTID" -- /bin/bash -c "source <(wget -qLO - https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/install.func) && color && verb_ip6 && catch_errors && setting_up_container && network_check && update_os" || exit
+  #lxc-attach -n "$CTID" -- bash -c "source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/install.func) && color && verb_ip6 && catch_errors && setting_up_container && network_check && update_os" || exit
+  pct exec "$CTID" -- /bin/bash -c "source <(wget -qLO - https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/install.func) && color && verb_ip6 && catch_errors && setting_up_container && network_check && update_os" || exit
   echo "Successfully set up container in post_create without curl"
   #pct exec $CTID -- /bin/bash -c "apt install -qqy curl &>/dev/null"
   pct exec $CTID -- /bin/bash -c "apt install -y curl"
@@ -131,7 +131,7 @@ fi
 if [[ "${NVIDIA_PASSTHROUGH}" == "yes" ]]; then
   #Fix container unable to start issue by commenting out /dev/dri lines (from tteck's setup)
   sed -e '/^dev/ s/^#*/#/' -i /etc/pve/lxc/${CTID}.conf
-  source <(curl -s https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/nvidia.func)
+  source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/nvidia.func)
   if [ -n "$SPINNER_PID" ] && ps -p $SPINNER_PID > /dev/null; then kill $SPINNER_PID > /dev/null; fi
   check_nvidia_drivers_version
   gpu_id=$(select_nvidia_gpu)

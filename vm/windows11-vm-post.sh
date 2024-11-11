@@ -172,7 +172,7 @@ close_window
 
 #Install TightVNC
 open_admin_ps
-send_line_to_vm "Invoke-WebRequest -Uri https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/powershell/Install-TightVNC.ps1 -OutFile Install-TightVNC.ps1"
+send_line_to_vm "Invoke-WebRequest -Uri https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/powershell/Install-TightVNC.ps1 -OutFile Install-TightVNC.ps1"
 sleep 5
 #send_line_to_vm "set-executionpolicy remotesigned -Scope Process -Force"
 send_line_to_vm "set-executionpolicy -Scope Process -Force -ExecutionPolicy Bypass"
@@ -183,7 +183,7 @@ sleep 200
 echo -e "${DGN}Installed TightVNC server. Password: ${BGN}admin123${CL}"
 
 #Install Nvidia Drivers
-send_line_to_vm "Invoke-WebRequest -Uri https://raw.githubusercontent.com/remz1337/Proxmox/remz/misc/powershell/Install-Nvidia.ps1 -OutFile Install-Nvidia.ps1"
+send_line_to_vm "Invoke-WebRequest -Uri https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/powershell/Install-Nvidia.ps1 -OutFile Install-Nvidia.ps1"
 sleep 5
 #send_line_to_vm "set-executionpolicy remotesigned -Scope Process -Force"
 #send_line_to_vm "set-executionpolicy -Scope Process -Force -ExecutionPolicy Bypass"
