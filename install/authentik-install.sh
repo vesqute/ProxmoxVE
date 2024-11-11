@@ -33,7 +33,7 @@ chmod +x /usr/bin/yq
 msg_ok "Installed yq"
 
 msg_info "Installing Python 3.12"
-$STD wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
+wget -qO- https://www.python.org/ftp/python/3.12.1/Python-3.12.1.tgz | tar -zxf -
 cd Python-3.12.1
 #./configure --enable-optimizations --prefix="$DOTLOCAL"
 $STD ./configure --enable-optimizations
@@ -100,7 +100,7 @@ msg_info "Building Authentik website"
 RELEASE=$(curl -s https://api.github.com/repos/goauthentik/authentik/releases/latest | grep "tarball_url" | awk '{print substr($2, 2, length($2)-3)}')
 mkdir -p /opt/authentik
 $STD wget -qO authentik.tar.gz "${RELEASE}"
-$STD tar -xzf authentik.tar.gz -C /opt/authentik --strip-components 1 --overwrite
+tar -xzf authentik.tar.gz -C /opt/authentik --strip-components 1 --overwrite
 rm -rf authentik.tar.gz
 cd /opt/authentik/website
 $STD npm install
@@ -154,7 +154,7 @@ cd ~
 set +o pipefail
 GO_RELEASE=$(curl -s https://go.dev/dl/ | grep -o -m 1 "go.*\linux-amd64.tar.gz")
 $STD wget -q https://golang.org/dl/${GO_RELEASE}
-$STD tar -xzf ${GO_RELEASE} -C /usr/local
+tar -xzf ${GO_RELEASE} -C /usr/local
 $STD ln -s /usr/local/go/bin/go /usr/bin/go
 set -o pipefail
 msg_ok "Installed Golang"
