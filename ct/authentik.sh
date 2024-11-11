@@ -20,8 +20,8 @@ header_info
 echo -e "Loading..."
 APP="Frigate"
 var_disk="40"
-var_cpu="4"
-var_ram="6144"
+var_cpu="6"
+var_ram="8192"
 var_os="debian"
 var_version="12"
 variables

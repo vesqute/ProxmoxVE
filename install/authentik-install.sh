@@ -8,7 +8,7 @@
 
 #Thanks to:
 #https://github.com/initLab/authentik-bare-metal/blob/master/install.sh
-#https://github.com/gtsatsis/authentik-bare-metal/commits/master/
+#https://github.com/gtsatsis/authentik-bare-metal
 #https://github.com/tteck/Proxmox/discussions/2952
 
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
@@ -23,6 +23,8 @@ msg_info "Installing Dependencies (Patience)"
 $STD apt-get install -y {curl,sudo,mc}
 $STD apt-get install -y gpg pkg-config libffi-dev
 $STD apt-get install -y --no-install-recommends build-essential libpq-dev libkrb5-dev
+$STD apt-get install -y libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev pkg-config libffi-dev zlib1g-dev libxmlsec1 libxmlsec1-dev libxmlsec1-openssl libmaxminddb0
+
 msg_ok "Installed Dependencies"
 
 msg_info "Installing Python 3.12"
@@ -249,11 +251,20 @@ msg_info "Installing Python Dependencies"
 cd /opt/authentik
 #$STD apt-get install -y --no-install-recommends build-essential pkg-config libpq-dev libkrb5-dev
 $STD apt install -y python3-pip
+$STD apt install -y git
 pip3 install --upgrade pip
-pip3 install poetry
+pip3 install poetry poetry-plugin-export
 $STD ln -s /usr/local/bin/poetry /usr/bin/poetry
 poetry install --only=main --no-ansi --no-interaction --no-root
 #pip3 install --force-reinstall *.whl
+
+#poetry export -f requirements.txt --output requirements.txt
+poetry export --without-hashes --without-urls -f requirements.txt --output requirements.txt
+#sed -i '\|django-tenants@git+https://github.com/rissson/django-tenants.git@a7f37c53f62f355a00142473ff1e3451bb794eca|d' requirements.txt
+
+
+pip install --no-cache-dir -r requirements.txt
+#pip install .
 msg_ok "Installed Python Dependencies"
 
 # curl https://bootstrap.pypa.io/get-pip.py | ./.venv/bin/python3
@@ -264,79 +275,6 @@ msg_ok "Installed Python Dependencies"
 
 
 
-######## NEXT STEP : Convert Stage 6
-
-
-
-##########ORIGINAL DOCKERFILE
-
-
-# Stage 6: Run
-FROM ghcr.io/goauthentik/fips-python:3.12.7-slim-bookworm-fips-full AS final-image
-
-ARG VERSION
-ARG GIT_BUILD_HASH
-ENV GIT_BUILD_HASH=$GIT_BUILD_HASH
-
-LABEL org.opencontainers.image.url=https://goauthentik.io
-LABEL org.opencontainers.image.description="goauthentik.io Main server image, see https://goauthentik.io for more info."
-LABEL org.opencontainers.image.source=https://github.com/goauthentik/authentik
-LABEL org.opencontainers.image.version=${VERSION}
-LABEL org.opencontainers.image.revision=${GIT_BUILD_HASH}
-
-WORKDIR /
-
-# We cannot cache this layer otherwise we'll end up with a bigger image
-RUN apt-get update && \
-    # Required for runtime
-    apt-get install -y --no-install-recommends libpq5 libmaxminddb0 ca-certificates libkrb5-3 libkadm5clnt-mit12 libkdb5-10 && \
-    # Required for bootstrap & healtcheck
-    apt-get install -y --no-install-recommends runit && \
-    apt-get clean && \
-    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/ && \
-    adduser --system --no-create-home --uid 1000 --group --home /authentik authentik && \
-    mkdir -p /certs /media /blueprints && \
-    mkdir -p /authentik/.ssh && \
-    mkdir -p /ak-root && \
-    chown authentik:authentik /certs /media /authentik/.ssh /ak-root
-
-COPY ./authentik/ /authentik
-COPY ./pyproject.toml /
-COPY ./poetry.lock /
-COPY ./schemas /schemas
-COPY ./locale /locale
-COPY ./tests /tests
-COPY ./manage.py /
-COPY ./blueprints /blueprints
-COPY ./lifecycle/ /lifecycle
-COPY ./authentik/sources/kerberos/krb5.conf /etc/krb5.conf
-COPY --from=go-builder /go/authentik /bin/authentik
-COPY --from=python-deps /ak-root/venv /ak-root/venv
-COPY --from=web-builder /work/web/dist/ /web/dist/
-COPY --from=web-builder /work/web/authentik/ /web/authentik/
-COPY --from=website-builder /work/website/build/ /website/help/
-COPY --from=geoip /usr/share/GeoIP /geoip
-
-USER 1000
-
-ENV TMPDIR=/dev/shm/ \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PATH="/ak-root/venv/bin:/lifecycle:$PATH" \
-    VENV_PATH="/ak-root/venv" \
-    POETRY_VIRTUALENVS_CREATE=false
-
-ENV GOFIPS=1
-
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD [ "ak", "healthcheck" ]
-
-ENTRYPOINT [ "dumb-init", "--", "ak" ]
-
-
-
-
-
-#######################################
 
 
 
@@ -344,37 +282,97 @@ ENTRYPOINT [ "dumb-init", "--", "ak" ]
 
 
 
-#Source from: https://github.com/gtsatsis/authentik-bare-metal
-#######
+# # Stage 6: Run
+# FROM ghcr.io/goauthentik/fips-python:3.12.7-slim-bookworm-fips-full AS final-image
 
-sudo apt update && sudo apt upgrade -yqq # Ensure up-to-date system
-sudo apt install -yqq curl wget git build-essential libncursesw5-dev libssl-dev \
-     libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev pkg-config libffi-dev zlib1g-dev libxmlsec1 libxmlsec1-dev libxmlsec1-openssl libmaxminddb0 # Install build dependencies
+# ARG VERSION
+# ARG GIT_BUILD_HASH
+# ENV GIT_BUILD_HASH=$GIT_BUILD_HASH
 
-wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/bin/yq
+# LABEL org.opencontainers.image.url=https://goauthentik.io
+# LABEL org.opencontainers.image.description="goauthentik.io Main server image, see https://goauthentik.io for more info."
+# LABEL org.opencontainers.image.source=https://github.com/goauthentik/authentik
+# LABEL org.opencontainers.image.version=${VERSION}
+# LABEL org.opencontainers.image.revision=${GIT_BUILD_HASH}
+
+# WORKDIR /
+
+# # We cannot cache this layer otherwise we'll end up with a bigger image
+# RUN apt-get update && \
+    # # Required for runtime
+    # apt-get install -y --no-install-recommends libpq5 libmaxminddb0 ca-certificates libkrb5-3 libkadm5clnt-mit12 libkdb5-10 && \
+    # # Required for bootstrap & healtcheck
+    # apt-get install -y --no-install-recommends runit && \
+    # apt-get clean && \
+    # rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/ && \
+    # adduser --system --no-create-home --uid 1000 --group --home /authentik authentik && \
+    # mkdir -p /certs /media /blueprints && \
+    # mkdir -p /authentik/.ssh && \
+    # mkdir -p /ak-root && \
+    # chown authentik:authentik /certs /media /authentik/.ssh /ak-root
+
+# COPY ./authentik/ /authentik
+# COPY ./pyproject.toml /
+# COPY ./poetry.lock /
+# COPY ./schemas /schemas
+# COPY ./locale /locale
+# COPY ./tests /tests
+# COPY ./manage.py /
+# COPY ./blueprints /blueprints
+# COPY ./lifecycle/ /lifecycle
+# COPY ./authentik/sources/kerberos/krb5.conf /etc/krb5.conf
+# COPY --from=go-builder /go/authentik /bin/authentik
+# COPY --from=python-deps /ak-root/venv /ak-root/venv
+# COPY --from=web-builder /work/web/dist/ /web/dist/
+# COPY --from=web-builder /work/web/authentik/ /web/authentik/
+# COPY --from=website-builder /work/website/build/ /website/help/
+# COPY --from=geoip /usr/share/GeoIP /geoip
+
+# USER 1000
+
+# ENV TMPDIR=/dev/shm/ \
+    # PYTHONDONTWRITEBYTECODE=1 \
+    # PYTHONUNBUFFERED=1 \
+    # PATH="/ak-root/venv/bin:/lifecycle:$PATH" \
+    # VENV_PATH="/ak-root/venv" \
+    # POETRY_VIRTUALENVS_CREATE=false
+
+# ENV GOFIPS=1
+
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD [ "ak", "healthcheck" ]
+
+# ENTRYPOINT [ "dumb-init", "--", "ak" ]
+
+
+
+msg_info "Installing ${APP}"
+# apt-get update
+# apt-get install -y --no-install-recommends libpq5 libmaxminddb0 ca-certificates libkrb5-3 libkadm5clnt-mit12 libkdb5-10
+# apt-get install -y --no-install-recommends runit
+# apt-get clean
+# rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/
+# adduser --system --no-create-home --uid 1000 --group --home /authentik authentik
+# mkdir -p /certs /media /blueprints
+# mkdir -p /authentik/.ssh
+# mkdir -p /ak-root
+# chown authentik:authentik /certs /media /authentik/.ssh /ak-root
+
+apt install -y redis-server
+systemctl enable -q --now redis-server
+
+#apt install -y yq
+YQ_LATEST="$(wget -qO- "https://api.github.com/repos/mikefarah/yq/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')"
+wget "https://github.com/mikefarah/yq/releases/download/${YQ_LATEST}/yq_linux_amd64" -qO /usr/bin/yq
 chmod +x /usr/bin/yq
 
-wget https://www.python.org/ftp/python/3.11.1/Python-3.11.1.tgz
-tar xzf Python-3.11.1.tgz 
-cd Python-3.11.1
-./configure --enable-optimizations
-sudo make altinstall # Install Python 3.11.1
 
-cd $STARTING_DIR
-rm -rf Python-3.11.1.tgz Python-3.11.1
+#cp /opt/authentik/authentik/lib/default.yml /opt/authentik/.local.env.yml
+yq -i ".secret_key = \"$(openssl rand -hex 32)\"" /opt/authentik/authentik/lib/default.yml
 
-# Install NodeJS 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Install Go 1.19
-wget https://golang.org/dl/go1.19.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.19.linux-amd64.tar.gz
-rm -rf go1.19.linux-amd64.tar.gz
-
-
-
-#######
+apt install -y python-is-python3
+#bash /opt/authentik/lifecycle/ak
+#bash /opt/authentik/authentik-server
+msg_ok "Installed ${APP}"
 
 motd_ssh
 customize
