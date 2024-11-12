@@ -354,8 +354,8 @@ $STD yq -i ".geoip = \"/opt/authentik/tests/GeoLite2-City-Test.mmdb\"" /etc/auth
 
 ########### Could just point directly to blueprints in the source folder.....
 #mkdir -p /opt/authentik/blueprints
-#cp -r /opt/authentik/authentik/blueprints /opt/authentik/blueprints
-$STD yq -i ".blueprints_dir = \"/opt/authentik/authentik/blueprints\"" /etc/authentik/config.yml
+cp -r /opt/authentik/authentik/blueprints /opt/authentik/blueprints
+$STD yq -i ".blueprints_dir = \"/opt/authentik/blueprints\"" /etc/authentik/config.yml
 
 $STD apt install -y python-is-python3
 
