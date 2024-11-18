@@ -40,9 +40,9 @@ echo -e "${BL}Customizing LXC creation${CL}"
 [[ "${PCT_OSTYPE:-}" ]] || exit "You need to set 'PCT_OSTYPE' variable."
 [[ "${PCT_OSVERSION:-}" ]] || exit "You need to set 'PCT_OSVERSION' variable."
 [[ "${app:-}" ]] || exit "You need to set 'app' variable."
-[[ "${PHS_ADD_SSH_USER:-}" ]] || exit "You need to set 'PHS_ADD_SSH_USER' variable."
-[[ "${PHS_SHARED_MOUNT:-}" ]] || exit "You need to set 'PHS_SHARED_MOUNT' variable."
-[[ "${PHS_POSTFIX_SAT:-}" ]] || exit "You need to set 'PHS_POSTFIX_SAT' variable."
+[[ "${ADD_SSH_USER:-}" ]] || exit "You need to set 'ADD_SSH_USER' variable."
+[[ "${SHARED_MOUNT:-}" ]] || exit "You need to set 'SHARED_MOUNT' variable."
+[[ "${POSTFIX_SAT:-}" ]] || exit "You need to set 'POSTFIX_SAT' variable."
 [[ "${NVIDIA_PASSTHROUGH:-}" ]] || exit "You need to set 'NVIDIA_PASSTHROUGH' variable."
 
 
@@ -69,7 +69,7 @@ if [ "$PCT_OSTYPE" == "debian" ]; then
   msg_ok "Installed sudo"
 fi
 
-if [[ "${PHS_ADD_SSH_USER}" == "yes" ]]; then
+if [[ "${ADD_SSH_USER}" == "yes" ]]; then
   #Add ssh sudo user SSH_USER
   msg_info "Adding SSH user $SSH_USER (sudo)"
   if user_exists "$SSH_USER"; then
@@ -82,7 +82,7 @@ if [[ "${PHS_ADD_SSH_USER}" == "yes" ]]; then
   msg_ok "Added SSH user $SSH_USER (sudo)"
 fi
 
-if [[ "${PHS_SHARED_MOUNT}" == "yes" ]]; then
+if [[ "${SHARED_MOUNT}" == "yes" ]]; then
   msg_info "Mounting shared directory"
   #Add user $SHARE_USER
   if user_exists "$SHARE_USER"; then
@@ -106,7 +106,7 @@ EOF
   reboot_lxc
 fi
 
-if [[ "${PHS_POSTFIX_SAT}" == "yes" ]]; then
+if [[ "${POSTFIX_SAT}" == "yes" ]]; then
   msg_info "Configuring Postfix Satellite"
   #Install deb-conf-utils to set parameters
   pct exec $CTID -- /bin/bash -c "apt install -qqy debconf-utils &>/dev/null"
