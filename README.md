@@ -83,7 +83,7 @@ To update an existing LXC, run the following command directly on the host, where
 ```
 pct exec <ID> -- /usr/bin/update
 ```
-Alternatively, you update from within the LXC by running the same command used to create the machine but inside it (not on the host). Easiest way is to log in from the host using the `pct enter` command with the machine ID :
+Alternatively, you can update from within the LXC by running the same command used to create the machine but inside it (not on the host). Easiest way is to log in from the host using the `pct enter` command with the machine ID :
 ```
 pct enter <ID>
 bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/ct/<app>.sh)"
