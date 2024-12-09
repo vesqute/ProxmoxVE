@@ -1,18 +1,18 @@
 {
-    "name": "Authentik",
+    "name": "authentik",
     "slug": "authentik",
     "categories": [
         11
     ],
     "date_created": "2024-11-06",
     "type": "ct",
-    "updateable": false,
+    "updateable": true,
     "privileged": false,
     "interface_port": "9000",
-    "documentation": null,
+    "documentation": "https://docs.goauthentik.io/docs/",
     "website": "https://goauthentik.io/",
     "logo": "https://github.com/goauthentik/authentik/blob/main/website/static/img/icon.png",
-    "description": "Authentik is an IdP (Identity Provider) and SSO (single sign on) that is built with security at the forefront of every piece of code, every feature, with an emphasis on flexibility and versatility.",
+    "description": "authentik is an IdP (Identity Provider) and SSO (single sign on) that is built with security at the forefront of every piece of code, every feature, with an emphasis on flexibility and versatility.",
     "install_methods": [
         {
             "type": "default",
@@ -33,7 +33,7 @@
     "notes": [
         {
             "text": "Initial configuration at http://<IP>:9000/if/flow/initial-setup/",
-            "type": "warning"
+            "type": "info"
         }
     ]
 }
