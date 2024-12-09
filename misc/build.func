@@ -727,7 +727,7 @@ EOF'
     pct exec "$CTID" -- ash -c "apk add bash >/dev/null"
   fi
   # This executes post_create_lxc.sh for additional configurations (default user, shared mount directory, postfix satellite)
-  source <(curl -s https://raw.githubusercontent.com/remz1337/Proxmox/remz/ct/post_create_lxc.sh)
+  source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/ct/post_create_lxc.sh)
   lxc-attach -n "$CTID" -- bash -c "$(wget -qLO - https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/install/$var_install.sh)" || exit
 
 }
