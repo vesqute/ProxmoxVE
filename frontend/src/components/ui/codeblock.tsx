@@ -1,5 +1,6 @@
 "use client";
 
+import { basePath } from "@/config/siteConfig";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Clipboard, Copy } from "lucide-react";
@@ -134,4 +135,4 @@ const CodeBlock = React.forwardRef<HTMLDivElement, CodeBlockProps>(
 );
 CodeBlock.displayName = "CodeBlock";
 
-export { CodeBlock, buttonVariants };
+export { buttonVariants, CodeBlock };

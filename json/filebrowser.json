@@ -8,7 +8,7 @@
     "type": "misc",
     "updateable": false,
     "privileged": false,
-    "interface_port": "8080",
+    "interface_port": 8080,
     "documentation": null,
     "website": "https://filebrowser.org/features",
     "logo": "https://github.com/remz1337/ProxmoxVE/blob/remz/misc/images/filebrowser.png?raw=true",
@@ -28,7 +28,7 @@
     ],
     "default_credentials": {
         "username": "admin",
-        "password": "changeme"
+        "password": "helper-scripts.com"
     },
     "notes": [
         {

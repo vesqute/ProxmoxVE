@@ -8,9 +8,9 @@
     "type": "ct",
     "updateable": true,
     "privileged": false,
-    "interface_port": "8765",
-    "documentation": null,
-    "website": null,
+    "interface_port": 8765,
+    "documentation": "https://github.com/motioneye-project/motioneye/wiki",
+    "website": "https://github.com/motioneye-project/motioneye",
     "logo": "https://github.com/home-assistant/brands/blob/master/core_integrations/motioneye/icon.png?raw=true",
     "description": "MotionEye is an open-source, self-hosted network video recording (NVR) software designed to manage and monitor IP cameras. It runs on various platforms such as Linux, Raspberry Pi, and Docker, and offers features such as real-time video streaming, motion detection, and customizable camera views.",
     "install_methods": [
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/motioneye.sh",
             "resources": {
-                "cpu": "2",
-                "ram": "2048",
-                "hdd": "8",
+                "cpu": 2,
+                "ram": 2048,
+                "hdd": 8,
                 "os": "debian",
                 "version": "12"
             }

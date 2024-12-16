@@ -2,13 +2,13 @@
     "name": "Notifiarr",
     "slug": "notifiarr",
     "categories": [
-        7
+        18
     ],
     "date_created": "2024-06-12",
     "type": "ct",
     "updateable": true,
     "privileged": false,
-    "interface_port": "5454",
+    "interface_port": 5454,
     "documentation": null,
     "website": "https://notifiarr.com/",
     "logo": "https://notifiarr.com/images/logo/notifiarr.png?raw=true",
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/notifiarr.sh",
             "resources": {
-                "cpu": "1",
-                "ram": "512",
-                "hdd": "2",
+                "cpu": 1,
+                "ram": 512,
+                "hdd": 2,
                 "os": "debian",
                 "version": "12"
             }
@@ -33,7 +33,7 @@
     "notes": [
         {
             "text": "Manually edit `/etc/notifiarr/notifiarr.conf`to enter the API key from Notifiarr.com, and create a password for the UI.",
-            "type": "warning"
+            "type": "info"
         }
     ]
 }

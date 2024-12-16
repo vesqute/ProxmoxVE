@@ -2,62 +2,37 @@
 source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/build.func)
 # Copyright (c) 2021-2024 tteck
 # Author: tteck (tteckster)
-# License: MIT
-# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://www.vaultwarden.net/
 
-function header_info {
-  clear
-  cat <<"EOF"
- _    __            ____ _       __               __         
-| |  / /___ ___  __/ / /| |     / /___ __________/ /__  ____ 
-| | / / __ `/ / / / / __/ | /| / / __ `/ ___/ __  / _ \/ __ \
-| |/ / /_/ / /_/ / / /_ | |/ |/ / /_/ / /  / /_/ /  __/ / / /
-|___/\__,_/\__,_/_/\__/ |__/|__/\__,_/_/   \__,_/\___/_/ /_/ 
-                                                             
-EOF
-}
-header_info
-echo -e "Loading..."
+# App Default Values
 APP="Vaultwarden"
-var_disk="6"
+var_tags="password-manager"
 var_cpu="4"
-var_ram="5120"
+var_ram="6144"
+var_disk="6"
 var_os="debian"
 var_version="12"
+var_unprivileged="1"
+
+# App Output & Base Settings
+header_info "$APP"
+base_settings
+
+# Core
 variables
 color
 catch_errors
 
-function default_settings() {
-  CT_TYPE="1"
-  PW=""
-  CT_ID=$NEXTID
-  HN=$NSAPP
-  DISK_SIZE="$var_disk"
-  CORE_COUNT="$var_cpu"
-  RAM_SIZE="$var_ram"
-  BRG="vmbr0"
-  NET="dhcp"
-  GATE=""
-  APT_CACHER=""
-  APT_CACHER_IP=""
-  DISABLEIP6="no"
-  MTU=""
-  SD=""
-  NS=""
-  MAC=""
-  VLAN=""
-  SSH="no"
-  VERB="no"
-  echo_default
-}
-
 function update_script() {
+  header_info
+  check_container_storage
+  check_container_resources
   if [[ ! -f /etc/systemd/system/vaultwarden.service ]]; then
     msg_error "No ${APP} Installation Found!"
     exit
   fi
- 
+
   VAULT=$(curl -s https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest |
     grep "tag_name" |
     awk '{print substr($2, 2, length($2)-3) }')
@@ -71,9 +46,7 @@ function update_script() {
     "3" "Set Admin Token" OFF \
     3>&1 1>&2 2>&3)
 
-  header_info
   if [ "$UPD" == "1" ]; then
-    whiptail --backtitle "Proxmox VE Helper Scripts" --msgbox --title "SET RESOURCES" "Please set the resources in your ${APP} LXC to ${var_cpu}vCPU and ${var_ram}RAM for the build process before continuing" 10 75
     msg_info "Stopping Vaultwarden"
     systemctl stop vaultwarden.service
     msg_ok "Stopped Vaultwarden"
@@ -100,7 +73,6 @@ function update_script() {
     msg_ok "Started Vaultwarden"
 
     msg_ok "$VAULT Update Successful"
-    echo -e "\n ⚠️  Ensure you set resources back to normal settings \n"
     exit
   fi
   if [ "$UPD" == "2" ]; then
@@ -142,10 +114,7 @@ start
 build_container
 description
 
-msg_info "Setting Container to Normal Resources"
-pct set $CTID -memory 512
-pct set $CTID -cores 1
-msg_ok "Set Container to Normal Resources"
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} should be reachable by going to the following URL.
-         ${BL}http://${IP}:8000${CL} \n"
+echo -e "${CREATING}${GN}${APP} setup has been successfully initialized!${CL}"
+echo -e "${INFO}${YW} Access it using the following URL:${CL}"
+echo -e "${TAB}${GATEWAY}${BGN}http://${IP}:8000${CL}"

@@ -8,7 +8,7 @@
     "type": "vm",
     "updateable": false,
     "privileged": false,
-    "interface_port": "80",
+    "interface_port": 80,
     "documentation": null,
     "website": "https://www.turnkeylinux.org/owncloud",
     "logo": "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/main/assets/owncloud.svg",
@@ -18,17 +18,22 @@
             "type": "default",
             "script": "vm/owncloud-vm.sh",
             "resources": {
-                "cpu": "2",
-                "ram": "2048",
-                "hdd": "12G",
-                "os": null,
-                "version": null
+                "cpu": 2,
+                "ram": 2048,
+                "hdd": 12,
+                "os": "debian",
+                "version": "12"
             }
         }
     ],
     "default_credentials": {
-        "username": null,
+        "username": "admin",
         "password": null
     },
-    "notes": []
+    "notes": [
+        {
+            "text": "This VM requires extra installation steps, see install guide at `https://github.com/community-scripts/ProxmoxVE/discussions/144`",
+            "type": "warning"
+        }
+    ]
 }

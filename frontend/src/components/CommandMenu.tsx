@@ -6,30 +6,29 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { fetchCategories } from "@/lib/data";
 import { Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React from "react";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { DialogTitle } from "./ui/dialog";
+import { basePath } from "@/config/siteConfig";
 
-const sortCategories = (categories: Category[]): Category[] => {
-  return categories.sort((a: Category, b: Category) => {
-    if (
-      a.catagoryName === "Proxmox VE Tools" &&
-      b.catagoryName !== "Proxmox VE Tools"
-    ) {
-      return -1;
-    } else if (
-      a.catagoryName !== "Proxmox VE Tools" &&
-      b.catagoryName === "Proxmox VE Tools"
-    ) {
-      return 1;
-    } else {
-      return a.catagoryName.localeCompare(b.catagoryName);
-    }
-  });
+export const formattedBadge = (type: string) => {
+  switch (type) {
+    case "vm":
+      return <Badge className="text-blue-500/75 border-blue-500/75">VM</Badge>;
+    case "ct":
+      return (
+        <Badge className="text-yellow-500/75 border-yellow-500/75">LXC</Badge>
+      );
+    case "misc":
+      return <Badge className="text-green-500/75 border-green-500/75">MISC</Badge>;
+  }
+  return null;
 };
 
 export default function CommandMenu() {
@@ -42,6 +41,7 @@ export default function CommandMenu() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
+        fetchSortedCategories();
         setOpen((open) => !open);
       }
     };
@@ -50,21 +50,17 @@ export default function CommandMenu() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchSortedCategories = () => {
     setIsLoading(true);
-      fetch(
-        `api/categories?_=${process.env.NEXT_PUBLIC_BUILD_TIME || Date.now()}`,
-      )
-        .then((response) => response.json())
-        .then((categories) => {
-          const sortedCategories = sortCategories(categories);
-          setLinks(sortedCategories);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          console.error(error);
-        });
+    fetchCategories()
+      .then((categories) => {
+        setLinks(categories);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.error(error);
+      });
   };
 
   return (
@@ -75,8 +71,8 @@ export default function CommandMenu() {
           "relative h-9 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-64",
         )}
         onClick={() => {
-          fetchCategories();
-          setOpen(true)
+          fetchSortedCategories();
+          setOpen(true);
         }}
       >
         <span className="inline-flex">Search scripts...</span>
@@ -85,41 +81,41 @@ export default function CommandMenu() {
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-          <DialogTitle className="sr-only">Search scripts</DialogTitle>
-        <CommandInput placeholder="search for a script..." />
+        <DialogTitle className="sr-only">Search scripts</DialogTitle>
+        <CommandInput placeholder="Search for a script..." />
         <CommandList>
-          <CommandEmpty>{isLoading ? "Loading..." : "No scripts found."}</CommandEmpty>
+          <CommandEmpty>
+            {isLoading ? "Loading..." : "No scripts found."}
+          </CommandEmpty>
           {links.map((category) => (
             <CommandGroup
-              key={"category:" + category.catagoryName}
-              heading={category.catagoryName}
+              key={`category:${category.name}`}
+              heading={category.name}
             >
-              {category.expand.items.map((script) => (
+              {category.scripts.map((script) => (
                 <CommandItem
-                  key={"script:" + script.id}
-                  value={script.title}
+                  key={`script:${script.slug}`}
+                  value={`${script.slug}-${script.name}`}
                   onSelect={() => {
                     setOpen(false);
-                    router.push(`/scripts?id=${script.title}`);
+                    router.push(`/scripts?id=${script.slug}`);
                   }}
                 >
                   <div className="flex gap-2" onClick={() => setOpen(false)}>
                     <Image
-                      src={script.logo}
-                      unoptimized
-                      height={16}
+                      src={script.logo || `/${basePath}/logo.png`}
                       onError={(e) =>
                         ((e.currentTarget as HTMLImageElement).src =
-                          "/logo.png")
+                          `/${basePath}/logo.png`)
                       }
+                      unoptimized
                       width={16}
+                      height={16}
                       alt=""
                       className="h-5 w-5"
                     />
-                    <span>{script.title}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {script.item_type}
-                    </span>
+                    <span>{script.name}</span>
+                    <span>{formattedBadge(script.type)}</span>
                   </div>
                 </CommandItem>
               ))}

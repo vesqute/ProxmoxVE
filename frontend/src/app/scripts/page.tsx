@@ -3,15 +3,16 @@
 export const dynamic = "force-static";
 
 import ScriptItem from "@/app/scripts/_components/ScriptItem";
+import { fetchCategories } from "@/lib/data";
 import { Category, Script } from "@/lib/types";
 import { Loader2 } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
-import Sidebar from "./_components/Sidebar";
 import { useQueryState } from "nuqs";
+import { Suspense, useEffect, useState } from "react";
 import {
   LatestScripts,
   MostViewedScripts,
 } from "./_components/ScriptInfoBlocks";
+import Sidebar from "./_components/Sidebar";
 
 function ScriptContent() {
   const [selectedScript, setSelectedScript] = useQueryState("id");
@@ -21,41 +22,19 @@ function ScriptContent() {
   useEffect(() => {
     if (selectedScript && links.length > 0) {
       const script = links
-        .map((category) => category.expand.items)
+        .map((category) => category.scripts)
         .flat()
-        .find((script) => script.title === selectedScript);
+        .find((script) => script.slug === selectedScript);
       setItem(script);
     }
   }, [selectedScript, links]);
 
-  const sortCategories = (categories: Category[]): Category[] => {
-    return categories.sort((a: Category, b: Category) => {
-      if (
-        a.catagoryName === "Proxmox VE Tools" &&
-        b.catagoryName !== "Proxmox VE Tools"
-      ) {
-        return -1;
-      } else if (
-        a.catagoryName !== "Proxmox VE Tools" &&
-        b.catagoryName === "Proxmox VE Tools"
-      ) {
-        return 1;
-      } else {
-        return a.catagoryName.localeCompare(b.catagoryName);
-      }
-    });
-  };
-
   useEffect(() => {
-      fetch(
-        `api/categories?_=${process.env.NEXT_PUBLIC_BUILD_TIME || Date.now()}`,
-      )
-        .then((response) => response.json())
-        .then((categories) => {
-          const sortedCategories = sortCategories(categories);
-          setLinks(sortedCategories);
-        })
-        .catch((error) => console.error(error));
+    fetchCategories()
+      .then((categories) => {
+        setLinks(categories);
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   return (

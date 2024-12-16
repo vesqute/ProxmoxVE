@@ -8,19 +8,19 @@
     "type": "ct",
     "updateable": false,
     "privileged": false,
-    "interface_port": "8096",
-    "documentation": null,
-    "website": null,
+    "interface_port": 8096,
+    "documentation": "https://jellyfin.org/docs/",
+    "website": "https://jellyfin.org/",
     "logo": "https://github.com/home-assistant/brands/blob/master/core_integrations/jellyfin/icon.png?raw=true",
-    "description": null,
+    "description": "Jellyfin is a free and open-source media server and suite of multimedia applications designed to organize, manage, and share digital media files to networked devices.",
     "install_methods": [
         {
             "type": "default",
             "script": "ct/jellyfin.sh",
             "resources": {
-                "cpu": "2",
-                "ram": "2048",
-                "hdd": "8",
+                "cpu": 2,
+                "ram": 2048,
+                "hdd": 8,
                 "os": "ubuntu",
                 "version": "22.04"
             }
@@ -33,11 +33,11 @@
     "notes": [
         {
             "text": "With Privileged/Unprivileged Hardware Acceleration Support",
-            "type": "warning"
+            "type": "info"
         },
         {
             "text": "FFmpeg path: /usr/lib/jellyfin-ffmpeg/ffmpeg",
-            "type": "warning"
+            "type": "info"
         }
     ]
 }

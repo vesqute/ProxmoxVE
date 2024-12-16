@@ -1,55 +1,58 @@
-// these are all the interfaces that are used in the site. these all come from the pocketbase database
+import { AlertColors } from "@/config/siteConfig";
 
-export interface Script {
-  title: string;
-  description: string;
-  documentation: string;
-  website: string;
-  logo: string;
-  created: string;
-  updated: string;
-  id: string;
-  item_type: string;
-  interface: string;
-  installCommand: string;
-  port: number;
-  post_install: string;
-  default_cpu: string;
-  default_hdd: string;
-  default_ram: string;
-  isUpdateable: boolean;
-  isMostViewed: boolean;
+export type Script = {
+  name: string;
+  slug: string;
+  categories: number[];
+  date_created: string;
+  type: "vm" | "ct" | "misc";
+  updateable: boolean;
   privileged: boolean;
-  alpineScript: alpine_script;
-  expand: {
-    alpine_script: alpine_script;
-    alerts: alerts[];
-    default_login: default_login;
+  interface_port: number | null;
+  documentation: string | null;
+  website: string | null;
+  logo: string | null;
+  description: string;
+  install_methods: {
+    type: "default" | "alpine";
+    script: string;
+    resources: {
+      cpu: number | null;
+      ram: number | null;
+      hdd: number | null;
+      os: string | null;
+      version: string | null;
+    };
+  }[];
+  default_credentials: {
+    username: string | null;
+    password: string | null;
   };
+  notes: [
+    {
+      text: string;
+      type: keyof typeof AlertColors;
+    },
+  ];
+};
+
+export type Category = {
+  name: string;
+  id: number;
+  sort_order: number;
+  scripts: Script[];
+};
+
+export type Metadata = {
+  categories: Category[];
+};
+
+export interface Version {
+  name: string;
+  slug: string;
 }
 
-export interface Category {
-  catagoryName: string;
-  categoryId: string;
-  id: string;
-  created: string;
-  expand: {
-    items: Script[];
-  };
-}
-
-interface alpine_script {
-  installCommand: string;
-  default_cpu: string;
-  default_hdd: string;
-  default_ram: string;
-}
-
-interface alerts {
-  content: string;
-}
-
-interface default_login {
-  username: string;
-  password: string;
+export interface OperatingSystem {
+  name: string;
+  versions: Version[];
 }

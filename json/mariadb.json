@@ -8,8 +8,8 @@
     "type": "ct",
     "updateable": false,
     "privileged": false,
-    "interface_port": "3306",
-    "documentation": null,
+    "interface_port": 3306,
+    "documentation": "https://github.com/community-scripts/ProxmoxVE/discussions/192",
     "website": "https://mariadb.org/",
     "logo": "https://raw.githubusercontent.com/loganmarchione/homelab-svg-assets/main/assets/mariadb.svg",
     "description": "MariaDB is a fork of the popular MySQL database management system that is developed and maintained by the open-source community. It is also commercially supported, offering enterprise-level features and support for organizations that require them. MariaDB aims to maintain high compatibility with MySQL, ensuring a drop-in replacement capability.",
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/mariadb.sh",
             "resources": {
-                "cpu": "1",
-                "ram": "1024",
-                "hdd": "4",
+                "cpu": 1,
+                "ram": 1024,
+                "hdd": 4,
                 "os": "debian",
                 "version": "12"
             }
@@ -30,5 +30,10 @@
         "username": null,
         "password": null
     },
-    "notes": []
+    "notes": [
+        {
+            "text": "This script requires some extra steps after the installation, Please checkout the 'documentation'",
+            "type": "info"
+        }
+    ]
 }

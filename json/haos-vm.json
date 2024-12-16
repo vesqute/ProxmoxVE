@@ -8,7 +8,7 @@
     "type": "vm",
     "updateable": false,
     "privileged": false,
-    "interface_port": "8123",
+    "interface_port": 8123,
     "documentation": "https://www.home-assistant.io/docs/",
     "website": "https://www.home-assistant.io/",
     "logo": "https://avatars.githubusercontent.com/u/13844975?s=200&v=4",
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "vm/haos-vm.sh",
             "resources": {
-                "cpu": "2",
-                "ram": "4096",
-                "hdd": "32G",
+                "cpu": 2,
+                "ram": 4096,
+                "hdd": 32,
                 "os": null,
                 "version": null
             }
@@ -34,6 +34,10 @@
         {
             "text": "The disk must have a minimum size of 32GB and its size cannot be changed during the creation of the VM.",
             "type": "warning"
+        },
+        {
+            "text": "After the script completes, click on the VM, then on the Summary or Console tab to find the VM IP.",
+            "type": "info"
         }
     ]
 }

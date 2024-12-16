@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/headscale.sh",
             "resources": {
-                "cpu": "1",
-                "ram": "512",
-                "hdd": "2",
+                "cpu": 1,
+                "ram": 512,
+                "hdd": 2,
                 "os": "debian",
                 "version": "12"
             }
@@ -33,7 +33,7 @@
     "notes": [
         {
             "text": "Configuration settings: `/etc/headscale/config.yaml`",
-            "type": "warning"
+            "type": "info"
         }
     ]
 }

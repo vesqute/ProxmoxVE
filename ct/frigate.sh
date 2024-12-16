@@ -1,66 +1,39 @@
 #!/usr/bin/env bash
 source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/build.func)
-# Copyright (c) 2021-2024 remz1337
-# Author: remz1337
-# License: MIT
-# https://github.com/remz1337/ProxmoxVE/raw/main/LICENSE
+# Copyright (c) 2021-2024 tteck
+# Author: tteck (tteckster) | Co-Author: remz1337
+# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# Source: https://frigate.video/
 
-function header_info {
-  clear
-  cat <<"EOF"
-    ______     _             __
-   / ____/____(_)___ _____ _/ /____
-  / /_  / ___/ / __ `/ __ `/ __/ _ \
- / __/ / /  / / /_/ / /_/ / /_/  __/
-/_/   /_/  /_/\__, /\__,_/\__/\___/
-             /____/
-
-EOF
-}
-header_info
-echo -e "Loading..."
+# App Default Values
 APP="Frigate"
-var_disk="40"
+var_tags="nvr"
 var_cpu="4"
 var_ram="4096"
+var_disk="20"
 var_os="debian"
 var_version="11"
+var_unprivileged="1"
+var_nvidia_passthrough="yes"
+
+# App Output & Base Settings
+header_info "$APP"
+base_settings
+
+# Core
 variables
 color
 catch_errors
 
-function default_settings() {
-  CT_TYPE="1"
-  PW=""
-  CT_ID=$NEXTID
-  HN=$NSAPP
-  DISK_SIZE="$var_disk"
-  CORE_COUNT="$var_cpu"
-  RAM_SIZE="$var_ram"
-  BRG="vmbr0"
-  NET="dhcp"
-  GATE=""
-  APT_CACHER=""
-  APT_CACHER_IP=""
-  DISABLEIP6="no"
-  MTU=""
-  SD=""
-  NS=""
-  MAC=""
-  FW=1
-  NVIDIA_PASSTHROUGH="yes"
-  VLAN=""
-  SSH="no"
-  VERB="yes"
-  echo_default
-}
-
 function update_script() {
+  header_info
+  check_container_storage
+  check_container_resources
   if [[ ! -f /etc/systemd/system/frigate.service ]]; then
     msg_error "No ${APP} Installation Found!"
     exit
   fi
-  
+    
   FRIGATE=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/blakeblackshear/frigate/releases/latest)
   FRIGATE=${FRIGATE##*/}
   
@@ -80,14 +53,13 @@ function update_script() {
   header_info
   #Update Frigate
   if [ "$UPD" == "1" ]; then
-
-      #Ensure enough resources
-      if (whiptail --backtitle "Proxmox VE Helper Scripts" --title "Update Frigate" --yesno "Does the LXC have at least 4vCPU  and 4096MiB RAM?" 10 58); then
-        CONTINUE=1
-      else
-        CONTINUE=0
-        exit-script
-      fi
+    #Ensure enough resources
+    if (whiptail --backtitle "Proxmox VE Helper Scripts" --title "Update Frigate" --yesno "Does the LXC have at least 4vCPU  and 4096MiB RAM?" 10 58); then
+      CONTINUE=1
+    else
+      CONTINUE=0
+      exit-script
+    fi
 
     echo -e "\n ⚠️  Ensure you set 4vCPU & 4096MiB RAM minimum!!! \n"
     msg_info "Stopping Frigate"
@@ -95,50 +67,50 @@ function update_script() {
     msg_ok "Stopped Frigate"
 
     msg_info "Updating Frigate to $FRIGATE (Patience)"
-      python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip
 
-      cd /opt
-      wget https://github.com/blakeblackshear/frigate/archive/refs/tags/${FRIGATE}.tar.gz -O frigate.tar.gz
-      tar -xzf frigate.tar.gz -C frigate --strip-components 1 --overwrite
+    cd /opt
+    wget https://github.com/blakeblackshear/frigate/archive/refs/tags/${FRIGATE}.tar.gz -O frigate.tar.gz
+    tar -xzf frigate.tar.gz -C frigate --strip-components 1 --overwrite
 
-      #Cleanup
-      rm frigate.tar.gz
+    #Cleanup
+    rm frigate.tar.gz
 
-      cd /opt/frigate
-      bash docker/main/build_nginx.sh
+    cd /opt/frigate
+    bash docker/main/build_nginx.sh
 
-      #Cleanup previous wheels
-      rm -rf /wheels
+    #Cleanup previous wheels
+    rm -rf /wheels
 
-      pip3 install -r docker/main/requirements.txt
-      pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-wheels.txt
+    pip3 install -r docker/main/requirements.txt
+    pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-wheels.txt
 
-      pip3 install -U /wheels/*.whl
-      ldconfig
-      pip3 install -U /wheels/*.whl
+    pip3 install -U /wheels/*.whl
+    ldconfig
+    pip3 install -U /wheels/*.whl
 
-      pip3 install -r /opt/frigate/docker/main/requirements-dev.txt
+    pip3 install -r /opt/frigate/docker/main/requirements-dev.txt
 
-      #First, comment the call to S6 in the run script
-      sed -i '/^s6-svc -O \.$/s/^/#/' /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/frigate/run
+    #First, comment the call to S6 in the run script
+    sed -i '/^s6-svc -O \.$/s/^/#/' /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/frigate/run
 
-      #Call nginx from absolute path
-      #nginx --> /usr/local/nginx/sbin/nginx
-      sed -i 's/exec nginx/exec \/usr\/local\/nginx\/sbin\/nginx/g' /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/nginx/run
+    #Call nginx from absolute path
+    #nginx --> /usr/local/nginx/sbin/nginx
+    sed -i 's/exec nginx/exec \/usr\/local\/nginx\/sbin\/nginx/g' /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/nginx/run
 
-      #Copy preconfigured files
-      cp -a /opt/frigate/docker/main/rootfs/. /
+    #Copy preconfigured files
+    cp -a /opt/frigate/docker/main/rootfs/. /
 
-      #Can't log to /dev/stdout with systemd, so log to file
-      sed -i 's/error_log \/dev\/stdout warn\;/error_log nginx\.err warn\;/' /usr/local/nginx/conf/nginx.conf
-      sed -i 's/access_log \/dev\/stdout main\;/access_log nginx\.log main\;/' /usr/local/nginx/conf/nginx.conf
+    #Can't log to /dev/stdout with systemd, so log to file
+    sed -i 's/error_log \/dev\/stdout warn\;/error_log nginx\.err warn\;/' /usr/local/nginx/conf/nginx.conf
+    sed -i 's/access_log \/dev\/stdout main\;/access_log nginx\.log main\;/' /usr/local/nginx/conf/nginx.conf
 
-      #Frigate web build
-      #This should be architecture agnostic, so speed up the build on multiarch by not using QEMU.
-      cd /opt/frigate/web
+    #Frigate web build
+    #This should be architecture agnostic, so speed up the build on multiarch by not using QEMU.
+    cd /opt/frigate/web
 
-      npm install
-      npm run build
+    npm install
+    npm run build
 
     cp -r dist/BASE_PATH/monacoeditorwork/* dist/assets/
     cd /opt/frigate/
@@ -161,11 +133,11 @@ function update_script() {
     msg_ok "Stopped go2rtc"
 
     msg_info "Updating go2rtc to $GO2RTC"
-      mkdir -p /usr/local/go2rtc/bin
-      cd /usr/local/go2rtc/bin
-      #Get latest release
-      wget -O go2rtc "https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64"
-      chmod +x go2rtc
+    mkdir -p /usr/local/go2rtc/bin
+    cd /usr/local/go2rtc/bin
+    #Get latest release
+    wget -O go2rtc "https://github.com/AlexxIT/go2rtc/releases/latest/download/go2rtc_linux_amd64"
+    chmod +x go2rtc
     msg_ok "Updated go2rtc"
 
     msg_info "Starting go2rtc"
@@ -181,11 +153,11 @@ function update_script() {
     msg_ok "Stopped Frigate and go2rtc"
 
     msg_info "Updating ffmpeg to $FFMPEG"
-      apt install xz-utils
-      mkdir -p /usr/lib/btbn-ffmpeg
-      wget -qO btbn-ffmpeg.tar.xz "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n6.1-latest-linux64-gpl-6.1.tar.xz"
-      tar -xf btbn-ffmpeg.tar.xz -C /usr/lib/btbn-ffmpeg --strip-components 1
-      rm -rf btbn-ffmpeg.tar.xz /usr/lib/btbn-ffmpeg/doc /usr/lib/btbn-ffmpeg/bin/ffplay
+    apt install xz-utils
+    mkdir -p /usr/lib/btbn-ffmpeg
+    wget -qO btbn-ffmpeg.tar.xz "https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-n6.1-latest-linux64-gpl-6.1.tar.xz"
+    tar -xf btbn-ffmpeg.tar.xz -C /usr/lib/btbn-ffmpeg --strip-components 1
+    rm -rf btbn-ffmpeg.tar.xz /usr/lib/btbn-ffmpeg/doc /usr/lib/btbn-ffmpeg/bin/ffplay
     msg_ok "Updated ffmpeg"
 
     msg_info "Starting Frigate and go2rtc"
@@ -205,7 +177,6 @@ pct set $CTID -memory 1024
 pct set $CTID -cores 2
 msg_ok "Set Container to Normal Resources"
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} should be reachable by going to the following URL.
-         ${BL}http://${IP}:5000${CL} \n"
-echo -e "go2rtc should be reachable by going to the following URL.
-         ${BL}http://${IP}:1984${CL} \n"
+echo -e "${CREATING}${GN}${APP} setup has been successfully initialized!${CL}"
+echo -e "${INFO}${YW} Access it using the following URL:${CL}"
+echo -e "${TAB}${GATEWAY}${BGN}http://${IP}:5000${CL}"

@@ -8,8 +8,8 @@
     "type": "ct",
     "updateable": false,
     "privileged": false,
-    "interface_port": "3000",
-    "documentation": null,
+    "interface_port": 3000,
+    "documentation": "https://docs.linkwarden.app/",
     "website": "https://linkwarden.app/",
     "logo": "https://raw.githubusercontent.com/linkwarden/linkwarden/main/assets/logo.png",
     "description": "Linkwarden is a fully self-hostable, open-source collaborative bookmark manager to collect, organize and archive webpages.",
@@ -18,9 +18,9 @@
             "type": "default",
             "script": "ct/linkwarden.sh",
             "resources": {
-                "cpu": "2",
-                "ram": "2048",
-                "hdd": "8",
+                "cpu": 2,
+                "ram": 2048,
+                "hdd": 12,
                 "os": "ubuntu",
                 "version": "22.04"
             }
@@ -32,8 +32,8 @@
     },
     "notes": [
         {
-            "text": "Show Database/Adminer Credentials: `cat linkwarden.creds`",
-            "type": "warning"
+            "text": "Linkwarden > 2.8.2 needs Monolith, More info: `https://github.com/community-scripts/ProxmoxVE/discussions/305`",
+            "type": "info"
         }
     ]
 }
