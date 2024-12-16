@@ -203,6 +203,11 @@ base_settings() {
   VLAN=""
   SSH="no"
   TAGS="remz1337;"
+  # Additional settings for post_create_lxc
+  ADD_SSH_USER="no"
+  SHARED_MOUNT="no"
+  POSTFIX_SAT="no"
+  NVIDIA_PASSTHROUGH="no"
   
   # Override default settings with variables from ct script
   CT_TYPE=${var_privileged:-$CT_TYPE}
@@ -211,6 +216,7 @@ base_settings() {
   RAM_SIZE=${var_ram:-$RAM_SIZE}
   VERB=${var_verbose:-$VERBOSE}
   TAGS="${TAGS}${var_tags:-}"
+  NVIDIA_PASSTHROUGH=${var_nvidia_passthrough:-$NVIDIA_PASSTHROUGH}
   
   # Since these 2 are only defined outside of default_settings function, we add a temporary fallback. TODO: To align everything, we should add these as constant variables (e.g. OSTYPE and OSVERSION), but that would currently require updating the default_settings function for all existing scripts
   if [ -z "$var_os" ]; then
@@ -219,11 +225,6 @@ base_settings() {
   if [ -z "$var_version" ]; then
     var_version="12"
   fi
-  # Additional settings for post_create_lxc
-  ADD_SSH_USER="no"
-  SHARED_MOUNT="no"
-  POSTFIX_SAT="no"
-  NVIDIA_PASSTHROUGH="no"
 }
 
 # This function displays the default values for various settings.
