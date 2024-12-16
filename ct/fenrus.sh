@@ -2,7 +2,7 @@
 source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/build.func)
 # Copyright (c) 2021-2024 tteck
 # Author: tteck (tteckster) | Co-Author: Scorpoon
-# License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
+# License: MIT | https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 # Source: https://github.com/revenz/Fenrus
 
 # App Default Values
