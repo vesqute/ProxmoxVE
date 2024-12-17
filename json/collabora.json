@@ -1,0 +1,39 @@
+{
+    "name": "Collabora Online",
+    "slug": "collabora",
+    "categories": [
+        14
+    ],
+    "date_created": "2024-09-02",
+    "type": "ct",
+    "updateable": true,
+    "privileged": false,
+    "interface_port": null,
+    "documentation": "https://collaboraonline.github.io/",
+    "website": "https://www.collaboraonline.com/",
+    "logo": "https://www.collaboraonline.com/wp-content/uploads/2023/11/collabora-online-white.png",
+    "description": "Collabora Online is a powerful online document editing suite which you can integrate into your own infrastructure or access via one of our trusted hosting partners.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/collabora.sh",
+            "resources": {
+                "cpu": 1,
+                "ram": 1024,
+                "hdd": 12,
+                "os": "debian",
+                "version": "12"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": null
+    },
+    "notes": [
+        {
+            "text": "Collabora Online needs to be behind a proxy, such as Nginx Proxy Manager.",
+            "type": "info"
+        }
+    ]
+}
