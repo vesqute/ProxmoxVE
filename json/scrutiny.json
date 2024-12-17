@@ -1,0 +1,43 @@
+{
+    "name": "Scrutiny",
+    "slug": "scrutiny",
+    "categories": [
+        7
+    ],
+    "date_created": "2024-07-17",
+    "type": "ct",
+    "updateable": true,
+    "privileged": false,
+    "interface_port": 8080,
+    "documentation": null,
+    "website": "https://github.com/AnalogJ/scrutiny",
+    "logo": "https://raw.githubusercontent.com/AnalogJ/scrutiny/master/webapp/frontend/src/assets/images/logo/scrutiny-logo-dark.png",
+    "description": "WebUI for smartd S.M.A.R.T monitoring.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/scrutiny.sh",
+            "resources": {
+                "cpu": 2,
+                "ram": 512,
+                "hdd": 4,
+                "os": "debian",
+                "version": "11"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": null
+    },
+    "notes": [
+        {
+            "text": "This script also installs the Scrutiny Collector on the host.",
+            "type": "info"
+        },
+		{
+            "text": "Don't forget to update the Scrutiny config file in `/opt/scrutiny/config/scrutiny.yaml` and reboot.",
+            "type": "info"
+        }
+    ]
+}

@@ -1,60 +1,33 @@
 #!/usr/bin/env bash
 source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/build.func)
 # Copyright (c) 2021-2024 tteck
-# Author: tteck (tteckster)
-# Co-Author: remz1337
-# License: MIT
-# https://github.com/remz1337/ProxmoxVE/raw/main/LICENSE
+# Author: tteck (tteckster) | Co-Author: remz1337
+# License: MIT | https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
+# Source: https://github.com/AnalogJ/scrutiny
 
-function header_info {
-  clear
-  cat <<"EOF"
-   _____                 __  _            
-  / ___/____________  __/ /_(_)___  __  __
-  \__ \/ ___/ ___/ / / / __/ / __ \/ / / /
- ___/ / /__/ /  / /_/ / /_/ / / / / /_/ / 
-/____/\___/_/   \__,_/\__/_/_/ /_/\__, /  
-                                 /____/   
-
-EOF
-}
-header_info
-echo -e "Loading..."
+# App Default Values
 APP="Scrutiny"
-var_disk="4"
+var_tags=""
 var_cpu="2"
 var_ram="512"
+var_disk="4"
 var_os="debian"
 var_version="11"
+var_unprivileged="1"
+
+# App Output & Base Settings
+header_info "$APP"
+base_settings
+
+# Core
 variables
 color
 catch_errors
 
-function default_settings() {
-  CT_TYPE="1"
-  PW=""
-  CT_ID=$NEXTID
-  HN=$NSAPP
-  DISK_SIZE="$var_disk"
-  CORE_COUNT="$var_cpu"
-  RAM_SIZE="$var_ram"
-  BRG="vmbr0"
-  NET="dhcp"
-  GATE=""
-  APT_CACHER=""
-  APT_CACHER_IP=""
-  DISABLEIP6="no"
-  MTU=""
-  SD=""
-  NS=""
-  MAC=""
-  VLAN=""
-  SSH="no"
-  VERB="no"
-  echo_default
-}
-
 function update_script() {
+  header_info
+  check_container_storage
+  check_container_resources
   if [[ ! -f /etc/systemd/system/scrutiny.service ]]; then
     msg_error "No ${APP} Installation Found!"
     exit
@@ -79,13 +52,14 @@ function update_script() {
   msg_info "Starting Scrutiny"
   systemctl start scrutiny.service
   msg_ok "Started Scrutiny"
+  exit
 }
 
 install_collector() {
   #header_info
   if [[ ! -f /etc/systemd/system/scrutiny.service ]]; then
     #Not found, install
-	msg_info "Installing Scrutiny Collector"
+    msg_info "Installing Scrutiny Collector"
     apt-get install -y smartmontools &>/dev/null
     mkdir -p /opt/scrutiny/bin
     mkdir -p /opt/scrutiny/config
@@ -127,11 +101,11 @@ WantedBy=timers.target
 EOF
 
     systemctl enable -q --now scrutiny.timer
-	msg_ok "Installed Scrutiny Collector"
-	msg_ok "Don't forget to update the the configuration in ${GN}/opt/scrutiny/config/collector.yaml${CL}"
+    msg_ok "Installed Scrutiny Collector"
+    msg_ok "Don't forget to update the the configuration in ${GN}/opt/scrutiny/config/collector.yaml${CL}"
   else
     #Already installed, update
-	msg_ok "Scrutiny Collector already installed. It will be updated."
+    msg_ok "Scrutiny Collector already installed. It will be updated."
     msg_info "Stopping Scrutiny Collector"
     systemctl disable -q --now scrutiny.timer
     msg_ok "Stopped Scrutiny Collector"
