@@ -1,0 +1,34 @@
+{
+    "name": "SAQ Lottery",
+    "slug": "saqlottery",
+    "categories": [
+        0
+    ],
+    "date_created": "2024-09-08",
+    "type": "ct",
+    "updateable": true,
+    "privileged": false,
+    "interface_port": null,
+    "documentation": null,
+    "website": "https://github.com/remz1337/SAQLottery",
+    "logo": null,
+    "description": "Small script to send discord notification when a new lottery opens.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/saqlottery.sh",
+            "resources": {
+                "cpu": 1,
+                "ram": 128,
+                "hdd": 2,
+                "os": "debian",
+                "version": "12"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": null
+    },
+    "notes": []
+}
