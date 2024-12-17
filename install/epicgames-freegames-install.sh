@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Copyright (c) 2021-2024 tteck
-# Author: tteck (tteckster), remz1337
+# Author: tteck (tteckster)
+# Co-Author: remz1337
 # License: MIT
 # https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
 

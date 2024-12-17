@@ -216,6 +216,9 @@ base_settings() {
   RAM_SIZE=${var_ram:-$RAM_SIZE}
   VERB=${var_verbose:-$VERBOSE}
   TAGS="${TAGS}${var_tags:-}"
+  ADD_SSH_USER=${var_add_ssh_user:-$ADD_SSH_USER}
+  SHARED_MOUNT=${var_shared_mount:-$SHARED_MOUNT}
+  POSTFIX_SAT=${var_postfix_sat:-$POSTFIX_SAT}
   NVIDIA_PASSTHROUGH=${var_nvidia_passthrough:-$NVIDIA_PASSTHROUGH}
   
   # Since these 2 are only defined outside of default_settings function, we add a temporary fallback. TODO: To align everything, we should add these as constant variables (e.g. OSTYPE and OSVERSION), but that would currently require updating the default_settings function for all existing scripts
