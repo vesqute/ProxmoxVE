@@ -1,61 +1,33 @@
 #!/usr/bin/env bash
 source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/build.func)
 # Copyright (c) 2021-2024 tteck
-# Author: tteck (tteckster)
-# Co-Author: remz1337
-# License: MIT
-# https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
+# Author: tteck (tteckster) | Co-Author: remz1337
+# License: MIT | https://github.com/remz1337/ProxmoxVE/raw/remz/LICENSE
+# Source: https://github.com/remz1337/Backup2Azure
 
-function header_info {
-clear
-cat <<"EOF"
-    ____             __              ___   ___                      
-   / __ )____ ______/ /____  ______ |__ \ /   |____  __  __________ 
-  / __  / __ `/ ___/ //_/ / / / __ \__/ // /| /_  / / / / / ___/ _ \
- / /_/ / /_/ / /__/ ,< / /_/ / /_/ / __// ___ |/ /_/ /_/ / /  /  __/
-/_____/\__,_/\___/_/|_|\__,_/ .___/____/_/  |_/___/\__,_/_/   \___/ 
-                           /_/                                      
-
-EOF
-}
-header_info
-echo -e "Loading..."
+# App Default Values
 APP="Backup2Azure"
-var_disk="4"
+var_tags=""
 var_cpu="1"
 var_ram="512"
+var_disk="4"
 var_os="debian"
 var_version="12"
+var_unprivileged="1"
+
+# App Output & Base Settings
+header_info "$APP"
+base_settings
+
+# Core
 variables
 color
 catch_errors
 
-function default_settings() {
-  CT_TYPE="1"
-  PW=""
-  CT_ID=$NEXTID
-  HN=$NSAPP
-  DISK_SIZE="$var_disk"
-  CORE_COUNT="$var_cpu"
-  RAM_SIZE="$var_ram"
-  BRG="vmbr0"
-  NET="dhcp"
-  GATE=""
-  APT_CACHER=""
-  APT_CACHER_IP=""
-  DISABLEIP6="no"
-  MTU=""
-  SD=""
-  NS=""
-  MAC=""
-  VLAN=""
-  SSH="no"
-  VERB="no"
-  echo_default
-}
-
 function update_script() {
   header_info
+  check_container_storage
+  check_container_resources 
   if [[ ! -f /etc/systemd/system/backup2azure.service ]]; then
     msg_error "No ${APP} Installation Found!"
     exit
