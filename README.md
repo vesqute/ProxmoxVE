@@ -112,7 +112,7 @@ Proxmox® is a registered trademark of [Proxmox Server Solutions GmbH](https://w
 
 ---
 
-# Disclaimer
+# Disclaimer - remz1337's fork
 This fork aims to add support for Nvidia GPU. The scripts are not guaranteed to work with every hardware, but they have been tested with the following hardware:
 - CPU: AMD Ryzen 5 3600
 - Compute GPU (LXC): Nvidia T600
@@ -154,4 +154,10 @@ Alternatively, you can update from within the LXC by running the same command us
 ```
 pct enter <ID>
 bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/ct/<app>.sh)"
+```
+
+# Installing and updating Nvidia drivers across host and containers
+To install or update latest Nvidia drivers, run the following command directly on the host:
+```
+bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/misc/nvidia-drivers-host.sh)"
 ```
