@@ -15,7 +15,7 @@ default_setup() {
 reboot_lxc(){
   msg_info "Rebooting LXC"
   pct reboot $CTID
-  sleep 1
+  sleep 5
   msg_ok "Rebooted LXC"
 }
 
