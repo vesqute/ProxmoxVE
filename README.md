@@ -141,7 +141,7 @@ Some of these configurations leverage settings that can be found in `/etc/pve-he
 # Deploying services
 To create a new LXC, run the following command directly on the host:
 ```
-bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/ct/<app>.sh)"
+bash -c "$(wget -qLO - https://github.com/remz1337/ProxmoxVE/raw/remz/ct/<app>.sh)"
 ```
 and replace `<app>` by the service you wish to deploy, eg. `.../remz/ct/frigate.sh)`
 
@@ -153,11 +153,11 @@ pct exec <ID> -- /usr/bin/update
 Alternatively, you can update from within the LXC by running the same command used to create the machine but inside it (not on the host). Easiest way is to log in from the host using the `pct enter` command with the machine ID :
 ```
 pct enter <ID>
-bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/ct/<app>.sh)"
+bash -c "$(wget -qLO - https://github.com/remz1337/ProxmoxVE/raw/remz/ct/<app>.sh)"
 ```
 
 # Installing and updating Nvidia drivers across host and containers
 To install or update latest Nvidia drivers, run the following command directly on the host:
 ```
-bash -c "$(wget -qLO - https://github.com/remz1337/Proxmox/raw/remz/misc/nvidia-drivers-host.sh)"
+bash -c "$(wget -qLO - https://github.com/remz1337/ProxmoxVE/raw/remz/misc/nvidia-drivers-host.sh)"
 ```
