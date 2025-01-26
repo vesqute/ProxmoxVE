@@ -15,7 +15,7 @@ network_check
 update_os
 
 EMAIL=$(whiptail --backtitle "Proxmox VE Helper Scripts" --inputbox "\nEnter your Epic Games account (email)" 9 58 --title "Account" 3>&1 1>&2 2>&3)
-echo -e "${DGN}Using Epic Games Account: ${BGN}$EMAIL${CL}"
+echo -e "Using Epic Games Account: $EMAIL"
 
 msg_info "Installing Dependencies (Patience)"
 $STD apt-get install -y \
