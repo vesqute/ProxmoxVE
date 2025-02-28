@@ -8,9 +8,9 @@ source <(curl -s https://raw.githubusercontent.com/remz1337/ProxmoxVE/remz/misc/
 # App Default Values
 APP="Epicgames-Freegames"
 var_tags=""
-var_cpu="1"
-var_ram="256"
-var_disk="3"
+var_cpu="2"
+var_ram="2048"
+var_disk="4"
 var_os="debian"
 var_version="12"
 var_unprivileged="1"
@@ -34,7 +34,7 @@ function update_script() {
     exit
   fi
   msg_info "Updating ${APP} LXC"
-  RELEASE=$(curl -s https://api.github.com/repos/claabs/epicgames-freegames-node/releases/latest | grep "tarball_url" | awk '{print substr($2, 2, length($2)-3)}')
+  RELEASE="https://github.com/claabs/epicgames-freegames-node/archive/refs/heads/master.tar.gz"
   #mkdir -p /opt/epicgames-freegames
   wget -qO epicgames-freegames.tar.gz "${RELEASE}"
   tar -xzf epicgames-freegames.tar.gz -C /opt/epicgames-freegames --strip-components 1 --overwrite

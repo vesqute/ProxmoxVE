@@ -42,8 +42,31 @@ $STD apt-get update
 $STD apt-get install -y nodejs
 msg_ok "Installed Node.js"
 
+msg_info "Installing Chrome"
+"Installing Chrome"
+apt-get update
+apt-get install -y wget gnupg procps
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - 
+sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+apt-get update
+apt-get install -y --no-install-recommends \
+    google-chrome-stable \
+    fonts-ipafont-gothic \
+    fonts-wqy-zenhei \
+    fonts-thai-tlwg \
+    fonts-kacst \
+    fonts-freefont-ttf \
+    libxss1 \
+    # App dependencies
+    jq \
+    tzdata \
+    cron \
+    tini
+rm -rf /var/lib/apt/lists/*
+msg_ok "Installed Chrome"
+
 msg_info "Installing Epicgames-freegames"
-RELEASE=$(curl -s https://api.github.com/repos/claabs/epicgames-freegames-node/releases/latest | grep "tarball_url" | awk '{print substr($2, 2, length($2)-3)}')
+RELEASE="https://github.com/claabs/epicgames-freegames-node/archive/refs/heads/master.tar.gz"
 mkdir -p /opt/epicgames-freegames
 wget -qO epicgames-freegames.tar.gz "${RELEASE}"
 tar -xzf epicgames-freegames.tar.gz -C /opt/epicgames-freegames --strip-components 1 --overwrite
@@ -81,6 +104,7 @@ Requires=epicgames-freegames.timer
 [Service]
 Type=simple
 WorkingDirectory=/opt/epicgames-freegames
+Environment="PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable"
 ExecStart=npm run start
 EOF
 
