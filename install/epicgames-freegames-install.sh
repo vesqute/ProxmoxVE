@@ -43,7 +43,6 @@ $STD apt-get install -y nodejs
 msg_ok "Installed Node.js"
 
 msg_info "Installing Chrome"
-"Installing Chrome"
 apt-get update
 apt-get install -y wget gnupg procps
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - 
