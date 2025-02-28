@@ -43,12 +43,12 @@ $STD apt-get install -y nodejs
 msg_ok "Installed Node.js"
 
 msg_info "Installing Chrome"
-apt-get update
-apt-get install -y wget gnupg procps
+$STD apt-get update
+$STD apt-get install -y wget gnupg procps
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - 
 sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-apt-get update
-apt-get install -y --no-install-recommends \
+$STD apt-get update
+$STD apt-get install -y --no-install-recommends \
     google-chrome-stable \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
@@ -56,7 +56,6 @@ apt-get install -y --no-install-recommends \
     fonts-kacst \
     fonts-freefont-ttf \
     libxss1 \
-    # App dependencies
     jq \
     tzdata \
     cron \
@@ -70,7 +69,7 @@ mkdir -p /opt/epicgames-freegames
 wget -qO epicgames-freegames.tar.gz "${RELEASE}"
 tar -xzf epicgames-freegames.tar.gz -C /opt/epicgames-freegames --strip-components 1 --overwrite
 rm -rf epicgames-freegames.tar.gz
-npm install --prefix /opt/epicgames-freegames
+$STD npm install --prefix /opt/epicgames-freegames
 mkdir -p /opt/epicgames-freegames/config
 
 cat <<EOF >/opt/epicgames-freegames/config/config.json
