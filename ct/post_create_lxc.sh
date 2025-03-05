@@ -115,6 +115,7 @@ if [[ "${POSTFIX_SAT}" == "yes" ]]; then
   pct exec $CTID -- /bin/bash -c "dpkg-reconfigure postfix -f noninteractive &>/dev/null"
   pct exec $CTID -- /bin/bash -c "postconf 'smtp_tls_security_level = encrypt'"
   pct exec $CTID -- /bin/bash -c "postconf 'smtp_tls_wrappermode = yes'"
+  pct exec $CTID -- /bin/bash -c "postconf 'smtpd_tls_security_level = none'"
   pct exec $CTID -- /bin/bash -c "systemctl restart postfix"
   msg_ok "Configured Postfix Satellite"
 fi
