@@ -61,6 +61,7 @@ $STD apt-get install -y --no-install-recommends \
     cron \
     tini
 rm -rf /var/lib/apt/lists/*
+$STD apt-get update
 msg_ok "Installed Chrome"
 
 msg_info "Installing Epicgames-freegames"
